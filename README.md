@@ -84,40 +84,40 @@ All security enforcement happens on the backend.
 
 ## 📁 Project Structure
 
-frontend/
-│
-├── index.html
-├── user-login.html
-├── department-login.html
-├── admin-login.html
-│
-├── user-dashboard.html
-├── department-dashboard.html
-├── admin-dashboard.html
-│
-├── assets/
-│   ├── css/
-│   │   └── style.css
-│   ├── js/
-│   │   └── landing.js
-│   └── images/
-│
-├── src/
-│   ├── config/
-│   │   └── apiConfig.js
-│   ├── services/
-│   │   ├── api.js
-│   │   ├── authService.js
-│   │   └── complaintService.js
-│   ├── modules/
-│   │   ├── loginPage.js
-│   │   ├── user.js
-│   │   ├── department.js
-│   │   └── admin.js
-│   └── utils/
-│       └── authGuard.js
-│
-└── README.md
+frontend/  
+│  
+├── index.html  
+├── user-login.html  
+├── department-login.html  
+├── admin-login.html  
+│  
+├── user-dashboard.html  
+├── department-dashboard.html  
+├── admin-dashboard.html  
+│  
+├── assets/  
+│   ├── css/  
+│   │   └── style.css  
+│   ├── js/  
+│   │   └── landing.js  
+│   └── images/  
+│  
+├── src/  
+│   ├── config/  
+│   │   └── apiConfig.js  
+│   ├── services/  
+│   │   ├── api.js  
+│   │   ├── authService.js  
+│   │   └── complaintService.js  
+│   ├── modules/  
+│   │   ├── loginPage.js  
+│   │   ├── user.js  
+│   │   ├── department.js  
+│   │   └── admin.js  
+│   └── utils/  
+│       └── authGuard.js  
+│  
+└── README.md 
 
 ---
 
