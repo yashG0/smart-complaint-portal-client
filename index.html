@@ -1,37 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Smart Complaint Portal - Login</title>
-    <link rel="stylesheet" href="./assets/css/style.css" />
-</head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Complaint Portal</title>
 
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/css/style.css" />
+</head>
 <body>
 
-    <div class="login-container">
-        <h2>Smart Complaint Portal</h2>
+  <!-- Floating Glow Background -->
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
 
-        <form id="loginForm">
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="email" required />
-            </div>
-
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="password" required />
-            </div>
-
-            <button type="submit">Login</button>
-        </form>
-
-        <p id="errorMessage" class="error"></p>
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="logo">
+      <div class="logo-icon">SCP</div>
+      <span>Smart Complaint Portal</span>
     </div>
+    <div class="nav-links">
+      <a href="user-login.html">Student</a>
+      <a href="department-login.html">Department</a>
+      <a href="admin-login.html">Admin</a>
+    </div>
+  </nav>
 
-    <script type="module" src="./src/modules/loginPage.js"></script>
+  <main>
+
+    <!-- HERO -->
+    <section class="hero fade-in">
+      <h1>
+        Centralized Complaint Tracking<br>
+        <span class="gradient-text">Built for Transparency</span>
+      </h1>
+
+      <p class="subtitle">
+        A modern complaint management platform designed
+        to improve accountability, structured workflow,
+        and real-time institutional transparency.
+      </p>
+
+      <div class="cta-buttons">
+        <a href="user-login.html" class="btn-primary">Student Login</a>
+        <a href="department-login.html" class="btn-secondary">Department Login</a>
+      </div>
+    </section>
+
+    <!-- SECTION 1 -->
+    <section class="section fade-in">
+      <h2>How It Works</h2>
+      <div class="cards">
+        <div class="card">
+          <h3>Submit Complaint</h3>
+          <p>Secure complaint submission with structured categorization.</p>
+        </div>
+        <div class="card">
+          <h3>Department Assignment</h3>
+          <p>Admin assigns complaints efficiently to the right authority.</p>
+        </div>
+        <div class="card">
+          <h3>Track & Escalate</h3>
+          <p>Monitor progress and escalate unresolved complaints automatically.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2 -->
+    <section class="section alt fade-in">
+      <h2>Why Choose Our System?</h2>
+      <div class="cards">
+        <div class="card">
+          <h3>Real-Time Updates</h3>
+          <p>Instant status tracking without manual follow-up.</p>
+        </div>
+        <div class="card">
+          <h3>Secure Access</h3>
+          <p>Role-based authentication ensures system integrity.</p>
+        </div>
+        <div class="card">
+          <h3>Audit Trail</h3>
+          <p>Complete complaint lifecycle transparency.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    © 2026 Smart Complaint Portal | MCA Minor Project
+  </footer>
+
+  <script src="./assets/js/landing.js"></script>
 
 </body>
-
 </html>
