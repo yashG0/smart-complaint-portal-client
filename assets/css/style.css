@@ -263,7 +263,7 @@ footer {
 
 
 
-/* AUTH PAGE */
+/* USER LOGIN PAGE STYLE */
 
 .auth-body {
   display: flex;
@@ -366,4 +366,29 @@ footer {
   font-size: 14px;
   color: #38bdf8;
   text-decoration: none;
+}
+
+
+
+/* DEPARTMENT LOGIN PAGE STYLE */
+.department-card .btn-primary {
+  background: linear-gradient(90deg, #7c3aed, #6366f1);
+  box-shadow: 0 0 25px rgba(124, 58, 237, 0.5);
+}
+
+.department-card .btn-primary:hover {
+  box-shadow: 0 0 35px rgba(124, 58, 237, 0.7);
+}
+
+
+
+/* ADMIN LOGIN PAGE STYLE */
+
+.admin-card .btn-primary {
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+  box-shadow: 0 0 25px rgba(239, 68, 68, 0.5);
+}
+
+.admin-card .btn-primary:hover {
+  box-shadow: 0 0 35px rgba(239, 68, 68, 0.7);
 }
