@@ -202,3 +202,55 @@ footer {
   opacity: 1;
   transform: translateY(0);
 }
+
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+
+  .navbar {
+    padding: 20px;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 20px;
+  }
+
+  .hero {
+    padding: 120px 20px 80px;
+  }
+
+  .hero h1 {
+    font-size: 32px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+  }
+
+  .cta-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .cta-buttons a {
+    margin: 0;
+  }
+
+  .section {
+    padding: 80px 20px;
+  }
+
+  .cards {
+    gap: 25px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 320px;
+  }
+
+}
