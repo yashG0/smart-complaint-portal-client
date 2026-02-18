@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard | Smart Complaint Portal</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+
+<body class="dashboard-body">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">SCP</div>
+            <span>Student</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="#" class="active">Dashboard</a>
+            <a href="#">My Complaints</a>
+            <a href="#">New Complaint</a>
+            <a href="#">Profile</a>
+            <a href="../user/user-login.html" id="logoutBtn">Logout</a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <h2>Dashboard</h2>
+            <button class="btn-primary small-btn">+ New Complaint</button>
+        </header>
+
+        <!-- Stats -->
+        <section class="stats">
+            <div class="stat-card">
+                <h3>12</h3>
+                <p>Total Complaints</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>4</h3>
+                <p>Pending</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>6</h3>
+                <p>Resolved</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>2</h3>
+                <p>Escalated</p>
+            </div>
+        </section>
+
+        <!-- Complaint Table -->
+        <section class="table-section">
+            <h3>Recent Complaints</h3>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Subject</th>
+                            <th>Status</th>
+                            <th>Department</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#1021</td>
+                            <td>Library Issue</td>
+                            <td class="status pending">Pending</td>
+                            <td>Library</td>
+                            <td>15 Feb 2026</td>
+                        </tr>
+
+                        <tr>
+                            <td>#1015</td>
+                            <td>WiFi Problem</td>
+                            <td class="status resolved">Resolved</td>
+                            <td>IT Department</td>
+                            <td>10 Feb 2026</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+    </div>
+
+    <script type="module" src="./src/modules/user.js"></script>
+
+</body>
+
+</html>
