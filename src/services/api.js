@@ -61,6 +61,9 @@ const apiClient = {
   },
   post(url, payload, config) {
     return request("POST", url, payload, config);
+  },
+  patch(url, payload, config) {
+    return request("PATCH", url, payload, config);
   }
 };
 
