@@ -1,9 +1,15 @@
 import { getAuthUser } from "../../services/authService.js";
-import { getMyComplaints } from "../../services/complaintService.js";
+import {
+  getMyComplaints,
+  updateComplaintStatus
+} from "../../services/complaintService.js";
 import { requireAuth, logoutAndRedirect } from "../../utils/authGuard.js";
 import { initStudentMobileNav } from "../user/mobileNav.js";
 
 const isAllowed = requireAuth({ allowedRoles: ["department"] });
+const allowedStatuses = ["assigned", "in_progress", "resolved", "escalated"];
+let pendingUpdates = new Map();
+let assignedQueue = [];
 
 function formatDate(dateString) {
   const date = new Date(dateString);
@@ -27,6 +33,20 @@ function getStatusClass(status) {
     return "escalated";
   }
   return "pending";
+}
+
+function formatStatusLabel(status) {
+  const normalized = String(status ?? "").toLowerCase();
+  if (normalized === "in_progress") {
+    return "In Progress";
+  }
+  if (normalized === "resolved") {
+    return "Resolved";
+  }
+  if (normalized === "escalated") {
+    return "Escalated";
+  }
+  return "Assigned";
 }
 
 function setError(message) {
@@ -84,23 +104,105 @@ function renderComplaints(complaints) {
         <tr>
           <td>#${complaint.id.slice(0, 6)}</td>
           <td>${complaint.title}</td>
-          <td>-</td>
-          <td class="status ${statusClass}">${complaint.status}</td>
+          <td>
+            <select class="department-status-select" data-complaint-id="${complaint.id}">
+              ${allowedStatuses
+                .map(
+                  (status) => `
+                    <option value="${status}" ${
+                      String(complaint.status).toLowerCase() === status ? "selected" : ""
+                    }>
+                      ${formatStatusLabel(status)}
+                    </option>
+                  `
+                )
+                .join("")}
+            </select>
+          </td>
+          <td class="status ${statusClass}">${formatStatusLabel(complaint.status)}</td>
           <td>${formatDate(complaint.created_at)}</td>
         </tr>
       `;
     })
     .join("");
+
+  tableBody.querySelectorAll(".department-status-select").forEach((selectEl) => {
+    selectEl.addEventListener("change", (event) => {
+      const complaintId = event.target.dataset.complaintId;
+      const nextStatus = String(event.target.value).toLowerCase();
+      const complaint = complaints.find((item) => item.id === complaintId);
+      const currentStatus = String(complaint?.status ?? "").toLowerCase();
+
+      if (!complaintId) {
+        return;
+      }
+
+      if (nextStatus === currentStatus) {
+        pendingUpdates.delete(complaintId);
+      } else {
+        pendingUpdates.set(complaintId, nextStatus);
+      }
+
+      updateQueueButtonState();
+    });
+  });
 }
 
 async function loadDepartmentDashboard() {
   setError("");
   try {
     const complaints = await getMyComplaints();
+    assignedQueue = complaints.filter(
+      (item) => String(item.status).toLowerCase() === "assigned"
+    );
+    pendingUpdates = new Map();
     setStats(complaints);
-    renderComplaints(complaints);
+    renderComplaints(assignedQueue);
+    updateQueueButtonState();
   } catch (error) {
     setError(error.message);
+  }
+}
+
+function updateQueueButtonState() {
+  const updateQueueBtn = document.getElementById("updateQueueBtn");
+  if (!updateQueueBtn) {
+    return;
+  }
+
+  if (pendingUpdates.size === 0) {
+    updateQueueBtn.textContent = "Update Queue";
+    updateQueueBtn.disabled = false;
+    return;
+  }
+
+  updateQueueBtn.textContent = `Update Queue (${pendingUpdates.size})`;
+  updateQueueBtn.disabled = false;
+}
+
+async function applyQueueUpdates() {
+  const updateQueueBtn = document.getElementById("updateQueueBtn");
+
+  if (pendingUpdates.size === 0) {
+    loadDepartmentDashboard();
+    return;
+  }
+
+  if (updateQueueBtn) {
+    updateQueueBtn.disabled = true;
+    updateQueueBtn.textContent = "Updating...";
+  }
+
+  setError("");
+  try {
+    const operations = Array.from(pendingUpdates.entries()).map(
+      ([complaintId, status]) => updateComplaintStatus(complaintId, status)
+    );
+    await Promise.all(operations);
+    await loadDepartmentDashboard();
+  } catch (error) {
+    setError(error.message);
+    updateQueueButtonState();
   }
 }
 
@@ -109,7 +211,7 @@ if (isAllowed) {
 
   const logoutBtn = document.getElementById("logoutBtn");
   const userLabel = document.getElementById("departmentUserLabel");
-  const updateQueueBtn = document.querySelector(".department-btn");
+  const updateQueueBtn = document.getElementById("updateQueueBtn");
   const departmentChip = document.querySelector(".department-chip");
 
   const authUser = getAuthUser();
@@ -128,7 +230,7 @@ if (isAllowed) {
   });
 
   updateQueueBtn?.addEventListener("click", () => {
-    loadDepartmentDashboard();
+    applyQueueUpdates();
   });
 
   loadDepartmentDashboard();
