@@ -26,7 +26,10 @@ function setLoadingState(isLoading) {
   submitBtn.textContent = isLoading ? "Creating account..." : "Create Account";
 }
 
-redirectLoggedInUserToDashboard();
+redirectLoggedInUserToDashboard({
+  expectedRole: role,
+  logoutOnRoleMismatch: true
+});
 
 registerForm?.addEventListener("submit", async (event) => {
   event.preventDefault();

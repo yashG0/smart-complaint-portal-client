@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Smart Complaint Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body class="dashboard-body admin-theme">
+
+  <aside class="sidebar admin-sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon admin-logo">ADM</div>
+      <span>Admin Control</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#" class="active">Overview</a>
+      <a href="#">All Complaints</a>
+      <a href="#">Assignment Queue</a>
+      <a href="#">Escalations</a>
+      <a href="#" id="logoutBtn">Logout</a>
+    </nav>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar admin-topbar">
+      <div>
+        <h2>Admin Dashboard</h2>
+        <p class="admin-subtitle" id="adminUserLabel">Signed in as Administrator</p>
+      </div>
+      <button class="btn-primary small-btn admin-btn">Assign Complaints</button>
+    </header>
+
+    <section class="stats">
+      <div class="stat-card admin-stat">
+        <h3>84</h3>
+        <p>Total Active Complaints</p>
+      </div>
+      <div class="stat-card admin-stat">
+        <h3>17</h3>
+        <p>Unassigned</p>
+      </div>
+      <div class="stat-card admin-stat">
+        <h3>49</h3>
+        <p>Resolved This Month</p>
+      </div>
+      <div class="stat-card admin-stat">
+        <h3>8</h3>
+        <p>Escalated Critical</p>
+      </div>
+    </section>
+
+    <section class="table-section">
+      <div class="admin-table-head">
+        <h3>Recent Assignment Activity</h3>
+        <span class="admin-chip">Central Monitoring</span>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Subject</th>
+              <th>Assigned To</th>
+              <th>Status</th>
+              <th>Updated On</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>#A-811</td>
+              <td>Server room cooling failure</td>
+              <td>IT Department</td>
+              <td class="status escalated">Escalated</td>
+              <td>19 Feb 2026</td>
+            </tr>
+            <tr>
+              <td>#A-804</td>
+              <td>Hostel water supply complaint</td>
+              <td>Maintenance</td>
+              <td class="status pending">Pending</td>
+              <td>18 Feb 2026</td>
+            </tr>
+            <tr>
+              <td>#A-799</td>
+              <td>Class attendance portal issue</td>
+              <td>Academic Cell</td>
+              <td class="status resolved">Resolved</td>
+              <td>17 Feb 2026</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="../../src/modules/admin/dashboard.js"></script>
+</body>
+</html>

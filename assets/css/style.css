@@ -656,3 +656,77 @@ tbody tr:hover {
     gap: 10px;
   }
 }
+
+/* ADMIN DASHBOARD THEME */
+.admin-theme {
+  background: linear-gradient(140deg, #0f172a, #2a0b12);
+}
+
+.admin-sidebar {
+  border-right: 1px solid rgba(239, 68, 68, 0.25);
+  background: linear-gradient(180deg, #0b1220, #260b10);
+}
+
+.admin-logo {
+  background: linear-gradient(135deg, #ef4444, #f59e0b);
+}
+
+.admin-topbar h2 {
+  color: #fee2e2;
+}
+
+.admin-subtitle {
+  margin-top: 8px;
+  color: #a1a1aa;
+  font-size: 13px;
+}
+
+.admin-btn {
+  background: linear-gradient(90deg, #dc2626, #f59e0b);
+  box-shadow: 0 0 25px rgba(239, 68, 68, 0.35);
+}
+
+.admin-btn:hover {
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.35);
+}
+
+.admin-stat {
+  border-color: rgba(239, 68, 68, 0.22);
+  background: linear-gradient(145deg, #0f172a, #260b10);
+}
+
+.admin-stat:hover {
+  border-color: rgba(245, 158, 11, 0.45);
+}
+
+.admin-table-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.admin-chip {
+  font-size: 12px;
+  background: rgba(239, 68, 68, 0.12);
+  color: #fecaca;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+.admin-theme .sidebar-nav a.active {
+  background: linear-gradient(90deg, #dc2626, #f59e0b);
+}
+
+.admin-theme tbody tr:hover {
+  background: rgba(239, 68, 68, 0.08);
+}
+
+@media (max-width: 900px) {
+  .admin-table-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
