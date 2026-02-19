@@ -3,6 +3,7 @@ import apiClient, { extractErrorMessage } from "./api.js";
 const COMPLAINT_LIST_ENDPOINTS = ["/complaints/my", "/complaints"];
 const CREATE_COMPLAINT_ENDPOINTS = ["/complaints", "/complaints/create"];
 const COMPLAINT_BY_ID_ENDPOINT = (complaintId) => `/complaints/${complaintId}`;
+const DEPARTMENT_LIST_ENDPOINTS = ["/departments"];
 
 function shouldTryNextEndpoint(error) {
   const status = error?.response?.status;
@@ -68,6 +69,15 @@ export async function getComplaintById(complaintId) {
   try {
     const response = await apiClient.get(COMPLAINT_BY_ID_ENDPOINT(complaintId));
     return response.data?.data ?? response.data;
+  } catch (error) {
+    throw new Error(extractErrorMessage(error));
+  }
+}
+
+export async function getDepartments() {
+  try {
+    const response = await getFromFirstAvailableEndpoint(DEPARTMENT_LIST_ENDPOINTS);
+    return response.data?.data ?? response.data ?? [];
   } catch (error) {
     throw new Error(extractErrorMessage(error));
   }

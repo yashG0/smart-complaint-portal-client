@@ -66,6 +66,10 @@ export function getLoginPath(role) {
   return withAppBasePath(path);
 }
 
+export function getHomePath() {
+  return withAppBasePath("/index.html");
+}
+
 function getAppBasePath() {
   const pathname = window.location.pathname ?? "";
   // Works for both:

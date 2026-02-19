@@ -7,6 +7,12 @@ const nameInput = document.getElementById("name");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const confirmPasswordInput = document.getElementById("confirmPassword");
+const organizationNameInput = document.getElementById("organizationName");
+const departmentDescriptionInput = document.getElementById("departmentDescription");
+const organizationCodeInput = document.getElementById("organizationCode");
+const departmentCodeInput = document.getElementById("departmentCode");
+const contactEmailInput = document.getElementById("contactEmail");
+const contactPhoneInput = document.getElementById("contactPhone");
 const errorMessageEl = document.getElementById("errorMessage");
 const role = document.body.dataset.role ?? "student";
 
@@ -45,6 +51,12 @@ registerForm?.addEventListener("submit", async (event) => {
     return;
   }
 
+  const organizationName = organizationNameInput?.value.trim() ?? "";
+  if (role === "department" && !organizationName) {
+    setError("Organization name is required for department account.");
+    return;
+  }
+
   if (password.length < 6) {
     setError("Password must be at least 6 characters.");
     return;
@@ -62,7 +74,13 @@ registerForm?.addEventListener("submit", async (event) => {
       name,
       email,
       password,
-      role
+      role,
+      organizationName,
+      departmentDescription: departmentDescriptionInput?.value.trim() ?? "",
+      organizationCode: organizationCodeInput?.value.trim() ?? "",
+      departmentCode: departmentCodeInput?.value.trim() ?? "",
+      contactEmail: contactEmailInput?.value.trim() ?? "",
+      contactPhone: contactPhoneInput?.value.trim() ?? ""
     });
     window.location.replace(getDashboardPath(session.user.role));
   } catch (error) {

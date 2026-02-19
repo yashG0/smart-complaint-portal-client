@@ -82,17 +82,33 @@ export async function register({
   name,
   email,
   password,
-  role = "student"
+  role = "student",
+  organizationName = "",
+  departmentDescription = "",
+  organizationCode = "",
+  departmentCode = "",
+  contactEmail = "",
+  contactPhone = ""
 }) {
   try {
     const normalizedRole = normalizeRole(role);
     const endpoints = getRegisterEndpoints(normalizedRole);
-    const response = await postToFirstAvailableEndpoint(endpoints, {
+    const payload = {
       name,
       email,
-      password,
-      role: normalizedRole
-    });
+      password
+    };
+
+    if (normalizedRole === "department") {
+      payload.organization_name = organizationName;
+      payload.department_description = departmentDescription;
+      payload.organization_code = organizationCode || null;
+      payload.department_code = departmentCode || null;
+      payload.contact_email = contactEmail || null;
+      payload.contact_phone = contactPhone || null;
+    }
+
+    const response = await postToFirstAvailableEndpoint(endpoints, payload);
 
     try {
       const rawData = response.data ?? {};

@@ -20,9 +20,9 @@
         </div>
 
         <nav class="sidebar-nav">
-            <a href="#" class="active">Dashboard</a>
-            <a href="#">My Complaints</a>
-            <a href="#">New Complaint</a>
+            <a href="./dashboard.html" class="active">Dashboard</a>
+            <a href="./complaints.html">My Complaints</a>
+            <a href="./complaints.html">New Complaint</a>
             <a href="#">Profile</a>
             <a href="#" id="logoutBtn">Logout</a>
         </nav>
@@ -34,28 +34,28 @@
         <!-- Topbar -->
         <header class="topbar">
             <h2>Dashboard</h2>
-            <button class="btn-primary small-btn">+ New Complaint</button>
+            <a href="./complaints.html" class="btn-primary small-btn">+ New Complaint</a>
         </header>
 
         <!-- Stats -->
         <section class="stats">
             <div class="stat-card">
-                <h3>12</h3>
+                <h3 id="totalComplaintsCount">0</h3>
                 <p>Total Complaints</p>
             </div>
 
             <div class="stat-card">
-                <h3>4</h3>
+                <h3 id="pendingComplaintsCount">0</h3>
                 <p>Pending</p>
             </div>
 
             <div class="stat-card">
-                <h3>6</h3>
+                <h3 id="resolvedComplaintsCount">0</h3>
                 <p>Resolved</p>
             </div>
 
             <div class="stat-card">
-                <h3>2</h3>
+                <h3 id="escalatedComplaintsCount">0</h3>
                 <p>Escalated</p>
             </div>
         </section>
@@ -75,25 +75,14 @@
                             <th>Date</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="recentComplaintsTableBody">
                         <tr>
-                            <td>#1021</td>
-                            <td>Library Issue</td>
-                            <td class="status pending">Pending</td>
-                            <td>Library</td>
-                            <td>15 Feb 2026</td>
-                        </tr>
-
-                        <tr>
-                            <td>#1015</td>
-                            <td>WiFi Problem</td>
-                            <td class="status resolved">Resolved</td>
-                            <td>IT Department</td>
-                            <td>10 Feb 2026</td>
+                            <td colspan="5">Loading complaints...</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+            <p id="dashboardErrorMessage" class="error-text"></p>
 
         </section>
 

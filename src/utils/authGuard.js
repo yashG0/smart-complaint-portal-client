@@ -1,9 +1,13 @@
 import { getAuthUser, isAuthenticated, logout } from "../services/authService.js";
-import { getDashboardPath, getLoginPath } from "../config/apiConfig.js";
+import {
+  getDashboardPath,
+  getHomePath,
+  getLoginPath
+} from "../config/apiConfig.js";
 
 export function requireAuth({ allowedRoles = [] } = {}) {
   if (!isAuthenticated()) {
-    window.location.replace("/index.html");
+    window.location.replace(getHomePath());
     return false;
   }
 
@@ -18,7 +22,7 @@ export function requireAuth({ allowedRoles = [] } = {}) {
       window.location.replace(getDashboardPath(currentRole));
     } else {
       logout();
-      window.location.replace("/index.html");
+      window.location.replace(getHomePath());
     }
     return false;
   }
