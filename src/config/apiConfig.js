@@ -57,9 +57,24 @@ export function getRegisterEndpoints(role) {
 }
 
 export function getDashboardPath(role) {
-  return DASHBOARD_PATH_BY_ROLE[normalizeRole(role)] ?? "/index.html";
+  const path = DASHBOARD_PATH_BY_ROLE[normalizeRole(role)] ?? "/index.html";
+  return withAppBasePath(path);
 }
 
 export function getLoginPath(role) {
-  return LOGIN_PATH_BY_ROLE[normalizeRole(role)] ?? "/index.html";
+  const path = LOGIN_PATH_BY_ROLE[normalizeRole(role)] ?? "/index.html";
+  return withAppBasePath(path);
+}
+
+function getAppBasePath() {
+  const pathname = window.location.pathname ?? "";
+  // Works for both:
+  // - http://127.0.0.1:5500/... (frontend as web root)
+  // - http://127.0.0.1:5500/frontend/... (project root as web root)
+  return pathname.startsWith("/frontend/") ? "/frontend" : "";
+}
+
+function withAppBasePath(path) {
+  const basePath = getAppBasePath();
+  return `${basePath}${path}`;
 }
