@@ -35,19 +35,19 @@
 
     <section class="stats">
       <div class="stat-card department-stat">
-        <h3 id="assignedCount">14</h3>
-        <p>Assigned Today</p>
+        <h3 id="assignedCount">0</h3>
+        <p>Assigned</p>
       </div>
       <div class="stat-card department-stat">
-        <h3 id="inProgressCount">6</h3>
+        <h3 id="inProgressCount">0</h3>
         <p>In Progress</p>
       </div>
       <div class="stat-card department-stat">
-        <h3 id="resolvedCount">5</h3>
+        <h3 id="resolvedCount">0</h3>
         <p>Resolved</p>
       </div>
       <div class="stat-card department-stat">
-        <h3 id="escalatedCount">3</h3>
+        <h3 id="escalatedCount">0</h3>
         <p>Need Escalation</p>
       </div>
     </section>
@@ -71,29 +71,12 @@
           </thead>
           <tbody id="departmentComplaintTableBody">
             <tr>
-              <td>#D-2041</td>
-              <td>Lab air conditioning issue</td>
-              <td>High</td>
-              <td class="status pending">Pending</td>
-              <td>18 Feb 2026</td>
-            </tr>
-            <tr>
-              <td>#D-2038</td>
-              <td>Classroom projector not working</td>
-              <td>Medium</td>
-              <td class="status resolved">Resolved</td>
-              <td>16 Feb 2026</td>
-            </tr>
-            <tr>
-              <td>#D-2031</td>
-              <td>Broken water dispenser in Block B</td>
-              <td>High</td>
-              <td class="status escalated">Escalated</td>
-              <td>14 Feb 2026</td>
+              <td colspan="5">Loading complaints...</td>
             </tr>
           </tbody>
         </table>
       </div>
+      <p id="departmentErrorMessage" class="error-text"></p>
     </section>
   </div>
 
