@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Department Dashboard | Smart Complaint Portal</title>
+  <title>Resolved Complaints | Department Desk</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../assets/css/style.css">
 </head>
-<body class="dashboard-body department-theme">
+<body class="dashboard-body department-theme" data-complaint-page="resolved">
 
   <aside class="sidebar department-sidebar student-sidebar" id="studentSidebar">
     <div class="sidebar-logo">
@@ -28,10 +28,10 @@
     </div>
 
     <nav class="sidebar-nav" id="studentSidebarNav">
-      <a href="./dashboard.html" class="active">Overview</a>
+      <a href="./dashboard.html">Overview</a>
       <a href="./assigned.html">Assigned Complaints</a>
       <a href="./in-progress.html">In Progress</a>
-      <a href="./resolved.html">Resolved</a>
+      <a href="./resolved.html" class="active">Resolved</a>
       <a href="#" id="logoutBtn">Logout</a>
     </nav>
     <button
@@ -46,35 +46,23 @@
   <div class="main-content">
     <header class="topbar department-topbar">
       <div>
-        <h2>Department Dashboard</h2>
+        <h2 id="departmentPageTitle">Resolved Complaints</h2>
         <p class="dept-subtitle" id="departmentUserLabel">Signed in as Department User</p>
       </div>
-      <button class="btn-primary small-btn department-btn">Update Queue</button>
+      <button id="departmentRefreshBtn" class="btn-primary small-btn department-btn">Refresh</button>
     </header>
 
     <section class="stats">
       <div class="stat-card department-stat">
-        <h3 id="assignedCount">0</h3>
-        <p>Assigned</p>
-      </div>
-      <div class="stat-card department-stat">
-        <h3 id="inProgressCount">0</h3>
-        <p>In Progress</p>
-      </div>
-      <div class="stat-card department-stat">
-        <h3 id="resolvedCount">0</h3>
-        <p>Resolved</p>
-      </div>
-      <div class="stat-card department-stat">
-        <h3 id="escalatedCount">0</h3>
-        <p>Need Escalation</p>
+        <h3 id="departmentPageCount">0</h3>
+        <p>Total in this queue</p>
       </div>
     </section>
 
     <section class="table-section">
       <div class="department-table-head">
-        <h3>Assigned Complaints</h3>
-        <span class="department-chip">Facilities Department</span>
+        <h3 id="departmentTableTitle">Resolved Complaints</h3>
+        <span class="department-chip" id="departmentChip">Department</span>
       </div>
 
       <div class="table-wrapper">
@@ -83,8 +71,8 @@
             <tr>
               <th>ID</th>
               <th>Subject</th>
-              <th>Priority</th>
               <th>Status</th>
+              <th>Department</th>
               <th>Requested On</th>
             </tr>
           </thead>
@@ -95,10 +83,10 @@
           </tbody>
         </table>
       </div>
-      <p id="departmentErrorMessage" class="error-text"></p>
+      <p id="departmentComplaintPageError" class="error-text"></p>
     </section>
   </div>
 
-  <script type="module" src="../../src/modules/department/dashboard.js"></script>
+  <script type="module" src="../../src/modules/department/complaintPages.js"></script>
 </body>
 </html>
