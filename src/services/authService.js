@@ -1,6 +1,5 @@
 import apiClient, { extractErrorMessage } from "./api.js";
 import {
-  API_CONFIG,
   getLoginEndpoints,
   getRegisterEndpoints,
   normalizeRole
@@ -8,86 +7,6 @@ import {
 
 const AUTH_TOKEN_KEY = "scp_access_token";
 const AUTH_USER_KEY = "scp_auth_user";
-const MOCK_USERS_KEY = "scp_mock_users";
-
-function getMockUsers() {
-  const raw = localStorage.getItem(MOCK_USERS_KEY);
-  if (!raw) {
-    return [];
-  }
-
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return [];
-  }
-}
-
-function saveMockUsers(users) {
-  localStorage.setItem(MOCK_USERS_KEY, JSON.stringify(users));
-}
-
-function createOfflineSession({ email, role, name }) {
-  const normalizedRole = normalizeRole(role) ?? "student";
-  const now = Date.now();
-
-  return {
-    accessToken: `offline-token-${now}`,
-    user: {
-      id: `offline-${now}`,
-      name: name ?? email.split("@")[0],
-      email,
-      role: normalizedRole
-    }
-  };
-}
-
-function isNetworkUnavailable(error) {
-  return !error?.response;
-}
-
-function tryOfflineLogin({ email, password, role }) {
-  if (!API_CONFIG.enableOfflineAuthFallback) {
-    return null;
-  }
-
-  const normalizedRole = normalizeRole(role) ?? "student";
-  const users = getMockUsers();
-  const user = users.find((item) => item.email === email && item.password === password);
-
-  if (!user) {
-    throw new Error("Backend is offline. Use a registered local account first.");
-  }
-
-  return createOfflineSession({
-    email: user.email,
-    role: user.role ?? normalizedRole,
-    name: user.name
-  });
-}
-
-function registerOfflineUser({ name, email, password, role }) {
-  if (!API_CONFIG.enableOfflineAuthFallback) {
-    return null;
-  }
-
-  const normalizedRole = normalizeRole(role) ?? "student";
-  const users = getMockUsers();
-  const existingUser = users.find((item) => item.email === email);
-  if (existingUser) {
-    throw new Error("This email is already registered in offline mode.");
-  }
-
-  users.push({
-    name,
-    email,
-    password,
-    role: normalizedRole
-  });
-  saveMockUsers(users);
-
-  return createOfflineSession({ name, email, role: normalizedRole });
-}
 
 function normalizeLoginResponse(rawData, fallbackRole, fallbackEmail) {
   const accessToken =
@@ -148,19 +67,13 @@ export async function login({ email, password, role }) {
     const endpoints = getLoginEndpoints(normalizedRole);
     const response = await postToFirstAvailableEndpoint(endpoints, {
       email,
-      password
+      password,
+      role: normalizedRole
     });
     const session = normalizeLoginResponse(response.data, normalizedRole, email);
     saveAuthSession(session);
     return session;
   } catch (error) {
-    if (isNetworkUnavailable(error)) {
-      const offlineSession = tryOfflineLogin({ email, password, role });
-      if (offlineSession) {
-        saveAuthSession(offlineSession);
-        return offlineSession;
-      }
-    }
     throw new Error(extractErrorMessage(error));
   }
 }
@@ -177,7 +90,8 @@ export async function register({
     const response = await postToFirstAvailableEndpoint(endpoints, {
       name,
       email,
-      password
+      password,
+      role: normalizedRole
     });
 
     try {
@@ -189,13 +103,6 @@ export async function register({
       return await login({ email, password, role: normalizedRole });
     }
   } catch (error) {
-    if (isNetworkUnavailable(error)) {
-      const offlineSession = registerOfflineUser({ name, email, password, role });
-      if (offlineSession) {
-        saveAuthSession(offlineSession);
-        return offlineSession;
-      }
-    }
     throw new Error(extractErrorMessage(error));
   }
 }

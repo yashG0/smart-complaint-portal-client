@@ -1,7 +1,7 @@
 export const API_CONFIG = {
   baseURL: "http://127.0.0.1:8000/api",
   timeoutMs: 10000,
-  enableOfflineAuthFallback: true,  // when my fastapi backend will get ready i have to set it false
+  enableOfflineAuthFallback: false,
   endpoints: {
     loginByRole: {
       student: ["/auth/student/login", "/auth/user/login", "/auth/login"],
