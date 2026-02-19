@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard | Smart Complaint Portal</title>
+  <title>Departments | Admin Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../assets/css/style.css">
 </head>
@@ -28,11 +28,11 @@
     </div>
 
     <nav class="sidebar-nav" id="adminSidebarNav">
-      <a href="./dashboard.html" class="active">Overview</a>
+      <a href="./dashboard.html">Overview</a>
       <a href="./all-complaints.html">All Complaints</a>
       <a href="./assignment-queue.html">Unassigned</a>
       <a href="./escalations.html">Escalations</a>
-      <a href="./departments.html">Departments</a>
+      <a href="./departments.html" class="active">Departments</a>
       <a href="#" id="logoutBtn">Logout</a>
     </nav>
     <button
@@ -47,67 +47,50 @@
   <div class="main-content">
     <header class="topbar admin-topbar">
       <div>
-        <h2>Admin Dashboard</h2>
-        <p class="admin-subtitle" id="adminUserLabel">Signed in as Administrator</p>
+        <h2>Department Directory</h2>
+        <p class="admin-subtitle">All Registered Departments</p>
       </div>
-      <button class="btn-primary small-btn admin-btn" id="refreshBtn">Refresh Data</button>
+      <button class="btn-primary small-btn admin-btn" id="refreshBtn">Refresh</button>
     </header>
 
     <section class="stats">
       <div class="stat-card admin-stat">
-        <h3 id="totalCount">0</h3>
-        <p>Total Complaints</p>
-      </div>
-      <div class="stat-card admin-stat">
-        <h3 id="pendingCount">0</h3>
-        <p>Pending Assignment</p>
-      </div>
-      <div class="stat-card admin-stat">
-        <h3 id="inProgressCount">0</h3>
-        <p>In Progress</p>
-      </div>
-      <div class="stat-card admin-stat">
-        <h3 id="resolvedCount">0</h3>
-        <p>Resolved</p>
-      </div>
-      <div class="stat-card admin-stat">
-        <h3 id="escalatedCount">0</h3>
-        <p>Escalated</p>
+        <h3 id="deptCount">0</h3>
+        <p>Total Departments</p>
       </div>
     </section>
 
     <section class="table-section">
       <div class="admin-table-head">
-        <h3>Recent Complaints</h3>
-        <span class="admin-chip">Central Monitoring</span>
+        <h3>Department List</h3>
+        <span class="admin-chip">Active Directory</span>
       </div>
 
       <div class="table-wrapper">
         <table>
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Title</th>
-              <th>Submitted By</th>
-              <th>Department</th>
-              <th>Status</th>
-              <th>Date</th>
-              <th>Action</th>
+              <th>Department Name</th>
+              <th>Organization</th>
+              <th>Code</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Registered</th>
             </tr>
           </thead>
-          <tbody id="recentComplaintsTableBody">
+          <tbody id="departmentsTableBody">
             <tr>
-              <td colspan="7">Loading complaints...</td>
+              <td colspan="6">Loading departments...</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <p id="dashboardErrorMessage" class="error-text"></p>
+      <p id="errorMessage" class="error-text"></p>
     </section>
   </div>
 
-  <script type="module" src="../../src/modules/admin/dashboard.js"></script>
+  <script type="module" src="../../src/modules/admin/departments.js"></script>
 
 </body>
 </html>
