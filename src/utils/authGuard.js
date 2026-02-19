@@ -26,7 +26,10 @@ export function requireAuth({ allowedRoles = [] } = {}) {
   return true;
 }
 
-export function redirectLoggedInUserToDashboard() {
+export function redirectLoggedInUserToDashboard({
+  expectedRole = null,
+  logoutOnRoleMismatch = false
+} = {}) {
   if (!isAuthenticated()) {
     return;
   }
@@ -34,6 +37,13 @@ export function redirectLoggedInUserToDashboard() {
   const currentRole = getAuthUser()?.role;
   if (!currentRole) {
     logout();
+    return;
+  }
+
+  if (expectedRole && currentRole !== expectedRole) {
+    if (logoutOnRoleMismatch) {
+      logout();
+    }
     return;
   }
 

@@ -9,7 +9,8 @@ export const API_CONFIG = {
       admin: ["/auth/admin/login"]
     },
     registerByRole: {
-      student: ["/auth/student/register", "/auth/user/register", "/auth/register"]
+      student: ["/auth/student/register", "/auth/user/register", "/auth/register"],
+      department: ["/auth/department/register", "/auth/register"]
     }
   }
 };

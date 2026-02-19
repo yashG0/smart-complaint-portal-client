@@ -24,7 +24,10 @@ function setLoadingState(isLoading) {
   submitBtn.textContent = isLoading ? "Signing in..." : "Sign In";
 }
 
-redirectLoggedInUserToDashboard();
+redirectLoggedInUserToDashboard({
+  expectedRole: role,
+  logoutOnRoleMismatch: true
+});
 
 loginForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
