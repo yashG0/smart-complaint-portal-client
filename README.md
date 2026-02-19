@@ -87,13 +87,10 @@ All security enforcement happens on the backend.
 frontend/  
 │  
 ├── index.html  
-├── user-login.html  
-├── department-login.html  
-├── admin-login.html  
-│  
-├── user-dashboard.html  
-├── department-dashboard.html  
-├── admin-dashboard.html  
+├── register.html  
+├── package.json  
+├── bun.lock  
+├── README.md  
 │  
 ├── assets/  
 │   ├── css/  
@@ -101,6 +98,18 @@ frontend/
 │   ├── js/  
 │   │   └── landing.js  
 │   └── images/  
+│       └── books_library.jpg  
+│  
+├── pages/  
+│   ├── user/  
+│   │   ├── login.html  
+│   │   └── dashboard.html  
+│   ├── department/  
+│   │   ├── login.html  
+│   │   └── dashboard.html  
+│   └── admin/  
+│       ├── login.html  
+│       └── dashboard.html  
 │  
 ├── src/  
 │   ├── config/  
@@ -110,14 +119,18 @@ frontend/
 │   │   ├── authService.js  
 │   │   └── complaintService.js  
 │   ├── modules/  
-│   │   ├── loginPage.js  
-│   │   ├── user.js  
-│   │   ├── department.js  
-│   │   └── admin.js  
+│   │   ├── auth/  
+│   │   │   └── loginPage.js  
+│   │   ├── user/  
+│   │   │   ├── dashboard.js  
+│   │   │   ├── profile.js  
+│   │   │   └── complaints.js  
+│   │   ├── department/  
+│   │   │   └── dashboard.js  
+│   │   └── admin/  
+│   │       └── dashboard.js  
 │   └── utils/  
 │       └── authGuard.js  
-│  
-└── README.md 
 
 ---
 
