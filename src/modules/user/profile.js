@@ -1,5 +1,6 @@
 import { logoutAndRedirect, requireAuth } from "../../utils/authGuard.js";
 import { getMyProfile, updateMyProfile } from "../../services/userService.js";
+import { initStudentMobileNav } from "./mobileNav.js";
 
 const isAllowed = requireAuth({ allowedRoles: ["student"] });
 
@@ -68,6 +69,8 @@ async function loadProfile() {
 }
 
 if (isAllowed) {
+  initStudentMobileNav();
+
   const logoutBtn = document.getElementById("logoutBtn");
   logoutBtn?.addEventListener("click", (event) => {
     event.preventDefault();

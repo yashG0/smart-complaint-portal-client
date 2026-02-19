@@ -9,19 +9,38 @@
 </head>
 <body class="dashboard-body">
 
-  <aside class="sidebar">
+  <aside class="sidebar student-sidebar" id="studentSidebar">
     <div class="sidebar-logo">
       <div class="logo-icon">SCP</div>
       <span>Student</span>
+      <button
+        type="button"
+        class="mobile-nav-toggle"
+        id="mobileNavToggle"
+        aria-label="Toggle navigation"
+        aria-expanded="false"
+        aria-controls="studentSidebarNav"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
     </div>
 
-    <nav class="sidebar-nav">
+    <nav class="sidebar-nav" id="studentSidebarNav">
       <a href="./dashboard.html">Dashboard</a>
       <a href="./complaints.html" class="active">My Complaints</a>
       <a href="./new-complaint.html">New Complaint</a>
       <a href="./profile.html">Profile</a>
       <a href="#" id="logoutBtn">Logout</a>
     </nav>
+    <button
+      type="button"
+      class="mobile-nav-backdrop"
+      id="mobileNavBackdrop"
+      aria-hidden="true"
+      tabindex="-1"
+    ></button>
   </aside>
 
   <div class="main-content">

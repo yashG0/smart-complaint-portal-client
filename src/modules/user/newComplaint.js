@@ -3,6 +3,7 @@ import {
   getDepartments
 } from "../../services/complaintService.js";
 import { requireAuth, logoutAndRedirect } from "../../utils/authGuard.js";
+import { initStudentMobileNav } from "./mobileNav.js";
 
 const isAllowed = requireAuth({ allowedRoles: ["student"] });
 
@@ -60,6 +61,8 @@ async function loadDepartments() {
 }
 
 if (isAllowed) {
+  initStudentMobileNav();
+
   const logoutBtn = document.getElementById("logoutBtn");
   logoutBtn?.addEventListener("click", (event) => {
     event.preventDefault();
