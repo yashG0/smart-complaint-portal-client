@@ -1,6 +1,7 @@
 import { getAuthUser } from "../../services/authService.js";
 import { getMyComplaints } from "../../services/complaintService.js";
 import { requireAuth, logoutAndRedirect } from "../../utils/authGuard.js";
+import { initStudentMobileNav } from "../user/mobileNav.js";
 
 const isAllowed = requireAuth({ allowedRoles: ["department"] });
 
@@ -104,6 +105,8 @@ async function loadDepartmentDashboard() {
 }
 
 if (isAllowed) {
+  initStudentMobileNav();
+
   const logoutBtn = document.getElementById("logoutBtn");
   const userLabel = document.getElementById("departmentUserLabel");
   const updateQueueBtn = document.querySelector(".department-btn");

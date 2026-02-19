@@ -9,19 +9,38 @@
 </head>
 <body class="dashboard-body department-theme">
 
-  <aside class="sidebar department-sidebar">
+  <aside class="sidebar department-sidebar student-sidebar" id="studentSidebar">
     <div class="sidebar-logo">
       <div class="logo-icon department-logo">DPT</div>
       <span>Department Desk</span>
+      <button
+        type="button"
+        class="mobile-nav-toggle"
+        id="mobileNavToggle"
+        aria-label="Toggle navigation"
+        aria-expanded="false"
+        aria-controls="studentSidebarNav"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
     </div>
 
-    <nav class="sidebar-nav">
+    <nav class="sidebar-nav" id="studentSidebarNav">
       <a href="#" class="active">Overview</a>
       <a href="#">Assigned Complaints</a>
       <a href="#">In Progress</a>
       <a href="#">Resolved</a>
       <a href="#" id="logoutBtn">Logout</a>
     </nav>
+    <button
+      type="button"
+      class="mobile-nav-backdrop"
+      id="mobileNavBackdrop"
+      aria-hidden="true"
+      tabindex="-1"
+    ></button>
   </aside>
 
   <div class="main-content">

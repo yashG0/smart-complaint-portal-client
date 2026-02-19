@@ -377,12 +377,34 @@ footer {
 
 /* DEPARTMENT LOGIN PAGE STYLE */
 .department-card .btn-primary {
-  background: linear-gradient(90deg, #7c3aed, #6366f1);
-  box-shadow: 0 0 25px rgba(124, 58, 237, 0.5);
+  background: linear-gradient(90deg, #0d9488, #22c55e);
+  box-shadow: 0 0 25px rgba(20, 184, 166, 0.45);
 }
 
 .department-card .btn-primary:hover {
-  box-shadow: 0 0 35px rgba(124, 58, 237, 0.7);
+  box-shadow: 0 0 35px rgba(34, 197, 94, 0.45);
+}
+
+.auth-body[data-role="department"] .blob1 {
+  background: #14b8a6;
+}
+
+.auth-body[data-role="department"] .blob2 {
+  background: #22c55e;
+}
+
+.auth-body[data-role="department"] .auth-card {
+  border: 1px solid rgba(20, 184, 166, 0.25);
+}
+
+.auth-body[data-role="department"] .input-group input:focus,
+.auth-body[data-role="department"] .input-group textarea:focus {
+  border-color: #14b8a6;
+  box-shadow: 0 0 12px rgba(20, 184, 166, 0.35);
+}
+
+.auth-body[data-role="department"] .auth-footer a {
+  color: #5eead4;
 }
 
 
@@ -396,6 +418,28 @@ footer {
 
 .admin-card .btn-primary:hover {
   box-shadow: 0 0 35px rgba(239, 68, 68, 0.7);
+}
+
+.auth-body[data-role="admin"] .blob1 {
+  background: #ef4444;
+}
+
+.auth-body[data-role="admin"] .blob2 {
+  background: #f97316;
+}
+
+.auth-body[data-role="admin"] .auth-card {
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.auth-body[data-role="admin"] .input-group input:focus,
+.auth-body[data-role="admin"] .input-group textarea:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.35);
+}
+
+.auth-body[data-role="admin"] .auth-footer a {
+  color: #fca5a5;
 }
 
 
