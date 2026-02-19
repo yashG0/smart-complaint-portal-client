@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Complaint | Smart Complaint Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body class="dashboard-body">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">SCP</div>
+      <span>Student</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="./dashboard.html">Dashboard</a>
+      <a href="./complaints.html">My Complaints</a>
+      <a href="./new-complaint.html" class="active">New Complaint</a>
+      <a href="#">Profile</a>
+      <a href="#" id="logoutBtn">Logout</a>
+    </nav>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <h2>New Complaint</h2>
+      <a href="./complaints.html" class="btn-secondary small-btn">View My Complaints</a>
+    </header>
+
+    <section class="panel-grid">
+      <div class="panel-card">
+        <h3>Create Complaint</h3>
+        <form id="createComplaintForm">
+          <div class="input-group">
+            <label>Title</label>
+            <input type="text" id="complaintTitle" placeholder="Enter complaint title" required>
+          </div>
+
+          <div class="input-group">
+            <label>Description</label>
+            <textarea id="complaintDescription" rows="4" placeholder="Describe your issue" required></textarea>
+          </div>
+
+          <div class="input-group">
+            <label>Department (Optional)</label>
+            <select id="complaintDepartment">
+              <option value="">Select department</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn-primary full-width">Submit Complaint</button>
+          <p id="createComplaintMessage" class="info-text"></p>
+          <p id="createComplaintError" class="error-text"></p>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="../../src/modules/user/newComplaint.js"></script>
+</body>
+</html>

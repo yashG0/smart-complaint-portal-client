@@ -18,7 +18,7 @@
     <nav class="sidebar-nav">
       <a href="./dashboard.html">Dashboard</a>
       <a href="./complaints.html" class="active">My Complaints</a>
-      <a href="./complaints.html">New Complaint</a>
+      <a href="./new-complaint.html">New Complaint</a>
       <a href="#">Profile</a>
       <a href="#" id="logoutBtn">Logout</a>
     </nav>
@@ -27,35 +27,8 @@
   <div class="main-content">
     <header class="topbar">
       <h2>My Complaints</h2>
+      <a href="./new-complaint.html" class="btn-primary small-btn">+ New Complaint</a>
     </header>
-
-    <section class="panel-grid">
-      <div class="panel-card">
-        <h3>Create Complaint</h3>
-        <form id="createComplaintForm">
-          <div class="input-group">
-            <label>Title</label>
-            <input type="text" id="complaintTitle" placeholder="Enter complaint title" required>
-          </div>
-
-          <div class="input-group">
-            <label>Description</label>
-            <textarea id="complaintDescription" rows="4" placeholder="Describe your issue" required></textarea>
-          </div>
-
-          <div class="input-group">
-            <label>Department (Optional)</label>
-            <select id="complaintDepartment">
-              <option value="">Select department</option>
-            </select>
-          </div>
-
-          <button type="submit" class="btn-primary full-width">Submit Complaint</button>
-          <p id="createComplaintMessage" class="info-text"></p>
-          <p id="createComplaintError" class="error-text"></p>
-        </form>
-      </div>
-    </section>
 
     <section class="table-section">
       <h3>Submitted Complaints</h3>
