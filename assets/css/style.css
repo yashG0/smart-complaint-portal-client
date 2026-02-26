@@ -1090,3 +1090,25 @@ tbody tr:hover {
   color: #94a3b8;
   font-size: 12px;
 }
+
+.admin-action-stack {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-status-select {
+  width: 100%;
+  min-width: 130px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #475569;
+  background: #1e293b;
+  color: #e2e8f0;
+  font-size: 12px;
+}
+
+.admin-status-save {
+  justify-content: center;
+  padding: 8px 10px;
+  font-size: 12px;
+}

@@ -1,12 +1,30 @@
 import { getAuthUser } from "../../services/authService.js";
-import { getAllComplaints, getDepartments } from "../../services/adminService.js";
+import {
+  getAllComplaints,
+  updateComplaintStatusAsAdmin
+} from "../../services/adminService.js";
 import { getComplaintHistory } from "../../services/complaintService.js";
 import { requireAuth, logoutAndRedirect } from "../../utils/authGuard.js";
 
 const isAllowed = requireAuth({ allowedRoles: ["admin"] });
 
 let allComplaints = [];
-let departments = [];
+const STATUS_LABELS = {
+  pending: "Pending",
+  assigned: "Assigned",
+  in_progress: "In Progress",
+  resolved: "Resolved",
+  escalated: "Escalated",
+  rejected: "Rejected"
+};
+const ADMIN_TRANSITIONS = {
+  pending: ["assigned", "rejected"],
+  assigned: ["in_progress", "resolved", "escalated"],
+  in_progress: ["resolved", "escalated"],
+  escalated: ["in_progress", "resolved", "rejected"],
+  resolved: [],
+  rejected: []
+};
 
 function formatDate(dateString) {
   const date = new Date(dateString);
@@ -67,6 +85,20 @@ function toReadableAction(action) {
     return "Updated";
   }
   return normalized.replaceAll("_", " ");
+}
+
+function normalizeStatus(status) {
+  return String(status ?? "").trim().toLowerCase().replaceAll(" ", "_");
+}
+
+function getStatusLabel(status) {
+  const normalized = normalizeStatus(status);
+  return STATUS_LABELS[normalized] ?? normalized;
+}
+
+function getAllowedStatusTargets(currentStatus) {
+  const normalized = normalizeStatus(currentStatus);
+  return [normalized, ...(ADMIN_TRANSITIONS[normalized] ?? [])];
 }
 
 function renderHistory(entries) {
@@ -131,6 +163,51 @@ async function loadHistory(complaintId) {
   }
 }
 
+function getFilteredComplaints() {
+  const searchTerm = document.getElementById("searchInput")?.value.toLowerCase() ?? "";
+  const statusFilter = document.getElementById("statusFilter")?.value ?? "";
+
+  let filtered = allComplaints;
+
+  if (searchTerm) {
+    filtered = filtered.filter((c) =>
+      c.title.toLowerCase().includes(searchTerm) ||
+      c.id.toLowerCase().includes(searchTerm)
+    );
+  }
+
+  if (statusFilter) {
+    filtered = filtered.filter(
+      (c) => normalizeStatus(c.status) === normalizeStatus(statusFilter)
+    );
+  }
+
+  return filtered;
+}
+
+async function saveStatusUpdate({ complaintId, nextStatus, selectEl, buttonEl }) {
+  setError("");
+  const currentLabel = buttonEl.textContent;
+  buttonEl.disabled = true;
+  selectEl.disabled = true;
+  buttonEl.textContent = "Saving...";
+
+  try {
+    const updatedComplaint = await updateComplaintStatusAsAdmin(complaintId, nextStatus);
+    allComplaints = allComplaints.map((complaint) =>
+      complaint.id === complaintId
+        ? { ...complaint, ...updatedComplaint, status: updatedComplaint.status }
+        : complaint
+    );
+    renderComplaints(getFilteredComplaints());
+  } catch (error) {
+    setError(error.message);
+    buttonEl.disabled = false;
+    selectEl.disabled = false;
+    buttonEl.textContent = currentLabel;
+  }
+}
+
 function renderComplaints(complaints) {
   const tableBody = document.getElementById("complaintsTableBody");
   const countEl = document.getElementById("complaintCount");
@@ -163,16 +240,38 @@ function renderComplaints(complaints) {
           <td>${complaint.title.substring(0, 40)}${complaint.title.length > 40 ? "..." : ""}</td>
           <td>${userEmail}</td>
           <td>${departmentText}</td>
-          <td class="status ${statusClass}">${complaint.status}</td>
+          <td class="status ${statusClass}">${getStatusLabel(complaint.status)}</td>
           <td>${formatDate(complaint.created_at)}</td>
           <td>
-            <button
-              type="button"
-              class="btn-secondary small-btn complaint-history-btn"
-              data-complaint-id="${complaint.id}"
-            >
-              View History
-            </button>
+            <div class="admin-action-stack">
+              <select class="admin-status-select" data-complaint-id="${complaint.id}">
+                ${getAllowedStatusTargets(complaint.status)
+                  .map(
+                    (status) => `
+                      <option value="${status}" ${
+                        normalizeStatus(complaint.status) === status ? "selected" : ""
+                      }>
+                        ${getStatusLabel(status)}
+                      </option>
+                    `
+                  )
+                  .join("")}
+              </select>
+              <button
+                type="button"
+                class="btn-primary small-btn admin-status-save"
+                data-complaint-id="${complaint.id}"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                class="btn-secondary small-btn complaint-history-btn"
+                data-complaint-id="${complaint.id}"
+              >
+                View History
+              </button>
+            </div>
           </td>
         </tr>
       `;
@@ -189,36 +288,42 @@ function renderComplaints(complaints) {
       }
     });
   });
+
+  tableBody.querySelectorAll(".admin-status-save").forEach((buttonEl) => {
+    buttonEl.addEventListener("click", () => {
+      const complaintId = buttonEl.dataset.complaintId;
+      if (!complaintId) {
+        return;
+      }
+
+      const selectEl = tableBody.querySelector(
+        `.admin-status-select[data-complaint-id="${complaintId}"]`
+      );
+      if (!selectEl) {
+        return;
+      }
+
+      const nextStatus = normalizeStatus(selectEl.value);
+      const currentComplaint = allComplaints.find((item) => item.id === complaintId);
+      const currentStatus = normalizeStatus(currentComplaint?.status);
+      if (nextStatus === currentStatus) {
+        return;
+      }
+
+      saveStatusUpdate({ complaintId, nextStatus, selectEl, buttonEl });
+    });
+  });
 }
 
 function filterComplaints() {
-  const searchTerm = document.getElementById("searchInput")?.value.toLowerCase() ?? "";
-  const statusFilter = document.getElementById("statusFilter")?.value ?? "";
-
-  let filtered = allComplaints;
-
-  if (searchTerm) {
-    filtered = filtered.filter((c) =>
-      c.title.toLowerCase().includes(searchTerm) ||
-      c.id.toLowerCase().includes(searchTerm)
-    );
-  }
-
-  if (statusFilter) {
-    filtered = filtered.filter((c) =>
-      String(c.status).toLowerCase() === statusFilter.toLowerCase()
-    );
-  }
-
-  renderComplaints(filtered);
+  renderComplaints(getFilteredComplaints());
 }
 
 async function loadComplaints() {
   setError("");
   try {
     allComplaints = await getAllComplaints();
-    departments = await getDepartments();
-    renderComplaints(allComplaints);
+    renderComplaints(getFilteredComplaints());
   } catch (error) {
     setError(error.message);
   }

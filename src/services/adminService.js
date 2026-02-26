@@ -2,6 +2,7 @@ import apiClient, { extractErrorMessage } from "./api.js";
 
 const ALL_COMPLAINTS_ENDPOINTS = ["/complaints"];
 const ASSIGN_COMPLAINT_ENDPOINTS = (complaintId) => `/complaints/${complaintId}/assign`;
+const COMPLAINT_STATUS_ENDPOINT = (complaintId) => `/complaints/${complaintId}/status`;
 const DEPARTMENT_LIST_ENDPOINTS = ["/departments"];
 
 function shouldTryNextEndpoint(error) {
@@ -48,6 +49,17 @@ export async function assignComplaintToDepartment(complaintId, departmentId) {
   try {
     const response = await apiClient.patch(ASSIGN_COMPLAINT_ENDPOINTS(complaintId), {
       department_id: departmentId
+    });
+    return response.data?.data ?? response.data;
+  } catch (error) {
+    throw new Error(extractErrorMessage(error));
+  }
+}
+
+export async function updateComplaintStatusAsAdmin(complaintId, status) {
+  try {
+    const response = await apiClient.patch(COMPLAINT_STATUS_ENDPOINT(complaintId), {
+      status
     });
     return response.data?.data ?? response.data;
   } catch (error) {
