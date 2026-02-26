@@ -5,6 +5,8 @@ const CREATE_COMPLAINT_ENDPOINTS = ["/complaints", "/complaints/create"];
 const COMPLAINT_BY_ID_ENDPOINT = (complaintId) => `/complaints/${complaintId}`;
 const COMPLAINT_STATUS_ENDPOINT = (complaintId) =>
   `/complaints/${complaintId}/status`;
+const COMPLAINT_HISTORY_ENDPOINT = (complaintId) =>
+  `/complaints/${complaintId}/history`;
 const DEPARTMENT_LIST_ENDPOINTS = ["/departments"];
 
 function shouldTryNextEndpoint(error) {
@@ -71,6 +73,15 @@ export async function getComplaintById(complaintId) {
   try {
     const response = await apiClient.get(COMPLAINT_BY_ID_ENDPOINT(complaintId));
     return response.data?.data ?? response.data;
+  } catch (error) {
+    throw new Error(extractErrorMessage(error));
+  }
+}
+
+export async function getComplaintHistory(complaintId) {
+  try {
+    const response = await apiClient.get(COMPLAINT_HISTORY_ENDPOINT(complaintId));
+    return response.data?.data ?? response.data ?? [];
   } catch (error) {
     throw new Error(extractErrorMessage(error));
   }
