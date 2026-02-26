@@ -74,16 +74,30 @@
               <th>Status</th>
               <th>Department</th>
               <th>Requested On</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody id="departmentComplaintTableBody">
             <tr>
-              <td colspan="5">Loading complaints...</td>
+              <td colspan="6">Loading complaints...</td>
             </tr>
           </tbody>
         </table>
       </div>
       <p id="departmentComplaintPageError" class="error-text"></p>
+    </section>
+
+    <section class="panel-card complaint-history-panel">
+      <div class="department-table-head">
+        <h3 id="departmentHistoryTitle">Complaint History</h3>
+        <span class="department-chip" id="departmentHistoryChip">Select a complaint</span>
+      </div>
+      <ol id="departmentHistoryTimeline" class="timeline-list">
+        <li class="timeline-item">
+          <p>Select "View History" to load timeline.</p>
+        </li>
+      </ol>
+      <p id="departmentHistoryError" class="error-text"></p>
     </section>
   </div>
 

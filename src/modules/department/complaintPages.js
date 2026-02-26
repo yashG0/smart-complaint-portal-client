@@ -1,5 +1,8 @@
 import { getAuthUser } from "../../services/authService.js";
-import { getMyComplaints } from "../../services/complaintService.js";
+import {
+  getComplaintHistory,
+  getMyComplaints
+} from "../../services/complaintService.js";
 import { requireAuth, logoutAndRedirect } from "../../utils/authGuard.js";
 import { initStudentMobileNav } from "../user/mobileNav.js";
 
@@ -19,6 +22,7 @@ const PAGE_META = {
     empty: "No resolved complaints found yet."
   }
 };
+let complaintCache = [];
 
 function normalizeStatus(status) {
   return String(status ?? "").trim().toLowerCase();
@@ -63,6 +67,98 @@ function setError(message) {
   }
 }
 
+function setHistoryError(message) {
+  const errorEl = document.getElementById("departmentHistoryError");
+  if (errorEl) {
+    errorEl.textContent = message;
+  }
+}
+
+function formatDateTime(dateString) {
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) {
+    return "-";
+  }
+
+  return date.toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+function toReadableAction(action) {
+  const normalized = String(action ?? "").trim();
+  if (!normalized) {
+    return "Updated";
+  }
+  return normalized.replaceAll("_", " ");
+}
+
+function renderHistory(entries) {
+  const timelineEl = document.getElementById("departmentHistoryTimeline");
+  if (!timelineEl) {
+    return;
+  }
+
+  if (!entries.length) {
+    timelineEl.innerHTML = `
+      <li class="timeline-item">
+        <p>No history entries found for this complaint.</p>
+      </li>
+    `;
+    return;
+  }
+
+  timelineEl.innerHTML = entries
+    .map(
+      (entry) => `
+      <li class="timeline-item">
+        <p><strong>${toReadableAction(entry.action)}</strong></p>
+        <small>${formatDateTime(entry.timestamp)}</small>
+      </li>
+    `
+    )
+    .join("");
+}
+
+async function loadHistory(complaintId) {
+  const timelineEl = document.getElementById("departmentHistoryTimeline");
+  const titleEl = document.getElementById("departmentHistoryTitle");
+  const chipEl = document.getElementById("departmentHistoryChip");
+
+  setHistoryError("");
+  if (!timelineEl) {
+    return;
+  }
+
+  timelineEl.innerHTML = `
+    <li class="timeline-item">
+      <p>Loading history...</p>
+    </li>
+  `;
+
+  try {
+    const complaint = complaintCache.find((item) => item.id === complaintId);
+    if (titleEl) {
+      titleEl.textContent = complaint
+        ? `Complaint History: ${complaint.title}`
+        : "Complaint History";
+    }
+    if (chipEl) {
+      chipEl.textContent = complaint ? `#${complaint.id.slice(0, 6)}` : "Complaint";
+    }
+
+    const entries = await getComplaintHistory(complaintId);
+    renderHistory(entries);
+  } catch (error) {
+    setHistoryError(error.message);
+    renderHistory([]);
+  }
+}
+
 function setMeta({ count, label, deptName }) {
   const titleEl = document.getElementById("departmentPageTitle");
   const tableTitleEl = document.getElementById("departmentTableTitle");
@@ -90,7 +186,7 @@ function renderComplaints(complaints, emptyText) {
   if (!complaints.length) {
     tableBody.innerHTML = `
       <tr>
-        <td colspan="5">${emptyText}</td>
+        <td colspan="6">${emptyText}</td>
       </tr>
     `;
     return;
@@ -104,9 +200,27 @@ function renderComplaints(complaints, emptyText) {
         <td class="status ${getStatusClass(complaint.status)}">${complaint.status}</td>
         <td>${complaint.department_name ?? "Department"}</td>
         <td>${formatDate(complaint.created_at)}</td>
+        <td>
+          <button
+            type="button"
+            class="btn-secondary small-btn complaint-history-btn"
+            data-complaint-id="${complaint.id}"
+          >
+            View History
+          </button>
+        </td>
       </tr>
     `)
     .join("");
+
+  tableBody.querySelectorAll(".complaint-history-btn").forEach((buttonEl) => {
+    buttonEl.addEventListener("click", () => {
+      const complaintId = buttonEl.dataset.complaintId;
+      if (complaintId) {
+        loadHistory(complaintId);
+      }
+    });
+  });
 }
 
 async function loadPage(pageStatus) {
@@ -122,6 +236,7 @@ async function loadPage(pageStatus) {
       .filter((item) => isStatusMatch(item.status, pageStatus))
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
+    complaintCache = filtered;
     setMeta({ count: filtered.length, label: meta.label, deptName });
     renderComplaints(filtered, meta.empty);
   } catch (error) {
