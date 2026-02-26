@@ -37,6 +37,34 @@ function setSuccess(message) {
   }
 }
 
+function getDepartmentNameById(departmentId) {
+  const department = departments.find((item) => item.id === departmentId);
+  return department?.name ?? "Selected department";
+}
+
+function setRowMessage(rowEl, message, type = "success") {
+  const rowStatusEl = rowEl?.querySelector(".queue-row-status");
+  if (!rowStatusEl) {
+    return;
+  }
+  rowStatusEl.textContent = message;
+  rowStatusEl.classList.remove("queue-row-status-success", "queue-row-status-error");
+  rowStatusEl.classList.add(
+    type === "error" ? "queue-row-status-error" : "queue-row-status-success"
+  );
+}
+
+function setRowPendingState(rowEl, isPending) {
+  if (!rowEl) {
+    return;
+  }
+
+  rowEl.classList.toggle("queue-row-pending", isPending);
+  rowEl.querySelectorAll("select, button, input").forEach((control) => {
+    control.disabled = isPending;
+  });
+}
+
 function renderQueue() {
   const tableBody = document.getElementById("queueTableBody");
   const countEl = document.getElementById("queueCount");
@@ -68,7 +96,7 @@ function renderQueue() {
       const userEmail = complaint.user_id ? complaint.user_id.slice(0, 12) : "Unknown";
 
       return `
-        <tr>
+        <tr data-queue-row-id="${complaint.id}">
           <td>#${complaint.id.slice(0, 6)}</td>
           <td>${complaint.title.substring(0, 30)}${complaint.title.length > 30 ? "..." : ""}</td>
           <td>${complaint.description.substring(0, 25)}${complaint.description.length > 25 ? "..." : ""}</td>
@@ -78,6 +106,7 @@ function renderQueue() {
               <option value="">Select department...</option>
               ${deptOptions}
             </select>
+            <p class="queue-row-status" data-row-status-for="${complaint.id}"></p>
           </td>
           <td>${formatDate(complaint.created_at)}</td>
         </tr>
@@ -92,21 +121,46 @@ function renderQueue() {
     select.addEventListener("change", async (e) => {
       const complaintId = e.target.dataset.complaintId;
       const deptId = e.target.value;
+      const rowEl = e.target.closest("tr");
 
       if (!deptId) {
+        if (rowEl) {
+          setRowMessage(rowEl, "");
+        }
         return;
       }
 
+      const departmentName = getDepartmentNameById(deptId);
+      const confirmAssign = window.confirm(
+        `Assign complaint #${complaintId?.slice(0, 6)} to ${departmentName}?`
+      );
+
+      if (!confirmAssign) {
+        e.target.value = "";
+        if (rowEl) {
+          setRowMessage(rowEl, "Assignment canceled.", "error");
+        }
+        return;
+      }
+
+      setRowPendingState(rowEl, true);
+      setRowMessage(rowEl, "Assigning...");
       try {
         setError("");
         await assignComplaintToDepartment(complaintId, deptId);
         setSuccess("Complaint assigned successfully!");
-        setTimeout(() => {
-          loadQueue();
-        }, 1000);
+        if (rowEl) {
+          setRowMessage(rowEl, `Assigned to ${departmentName}.`, "success");
+        }
+        await loadQueue();
       } catch (error) {
         setError(error.message);
         e.target.value = "";
+        if (rowEl) {
+          setRowMessage(rowEl, error.message, "error");
+        }
+      } finally {
+        setRowPendingState(rowEl, false);
       }
     });
   });

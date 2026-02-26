@@ -1112,3 +1112,21 @@ tbody tr:hover {
   padding: 8px 10px;
   font-size: 12px;
 }
+
+.queue-row-pending {
+  opacity: 0.65;
+}
+
+.queue-row-status {
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.queue-row-status-success {
+  color: #4ade80;
+}
+
+.queue-row-status-error {
+  color: #fca5a5;
+}

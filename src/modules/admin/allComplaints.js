@@ -101,6 +101,28 @@ function getAllowedStatusTargets(currentStatus) {
   return [normalized, ...(ADMIN_TRANSITIONS[normalized] ?? [])];
 }
 
+function setRowActionMessage(rowEl, message, type = "success") {
+  const messageEl = rowEl?.querySelector(".queue-row-status");
+  if (!messageEl) {
+    return;
+  }
+  messageEl.textContent = message;
+  messageEl.classList.remove("queue-row-status-success", "queue-row-status-error");
+  messageEl.classList.add(
+    type === "error" ? "queue-row-status-error" : "queue-row-status-success"
+  );
+}
+
+function setRowPendingState(rowEl, isPending) {
+  if (!rowEl) {
+    return;
+  }
+  rowEl.classList.toggle("queue-row-pending", isPending);
+  rowEl.querySelectorAll("select, button, input").forEach((control) => {
+    control.disabled = isPending;
+  });
+}
+
 function renderHistory(entries) {
   const timelineEl = document.getElementById("adminHistoryTimeline");
   if (!timelineEl) {
@@ -185,12 +207,10 @@ function getFilteredComplaints() {
   return filtered;
 }
 
-async function saveStatusUpdate({ complaintId, nextStatus, selectEl, buttonEl }) {
+async function saveStatusUpdate({ complaintId, nextStatus, rowEl }) {
   setError("");
-  const currentLabel = buttonEl.textContent;
-  buttonEl.disabled = true;
-  selectEl.disabled = true;
-  buttonEl.textContent = "Saving...";
+  setRowPendingState(rowEl, true);
+  setRowActionMessage(rowEl, "Saving status...");
 
   try {
     const updatedComplaint = await updateComplaintStatusAsAdmin(complaintId, nextStatus);
@@ -200,11 +220,19 @@ async function saveStatusUpdate({ complaintId, nextStatus, selectEl, buttonEl })
         : complaint
     );
     renderComplaints(getFilteredComplaints());
+    const refreshedRow = document.querySelector(
+      `tr[data-complaint-row-id="${complaintId}"]`
+    );
+    setRowActionMessage(
+      refreshedRow,
+      `Status updated to ${getStatusLabel(nextStatus)}.`,
+      "success"
+    );
   } catch (error) {
     setError(error.message);
-    buttonEl.disabled = false;
-    selectEl.disabled = false;
-    buttonEl.textContent = currentLabel;
+    setRowActionMessage(rowEl, error.message, "error");
+  } finally {
+    setRowPendingState(rowEl, false);
   }
 }
 
@@ -235,7 +263,7 @@ function renderComplaints(complaints) {
       const userEmail = complaint.user_id ? complaint.user_id.slice(0, 10) : "Unknown";
 
       return `
-        <tr>
+        <tr data-complaint-row-id="${complaint.id}">
           <td>#${complaint.id.slice(0, 6)}</td>
           <td>${complaint.title.substring(0, 40)}${complaint.title.length > 40 ? "..." : ""}</td>
           <td>${userEmail}</td>
@@ -271,6 +299,7 @@ function renderComplaints(complaints) {
               >
                 View History
               </button>
+              <p class="queue-row-status" data-row-status-for="${complaint.id}"></p>
             </div>
           </td>
         </tr>
@@ -306,11 +335,13 @@ function renderComplaints(complaints) {
       const nextStatus = normalizeStatus(selectEl.value);
       const currentComplaint = allComplaints.find((item) => item.id === complaintId);
       const currentStatus = normalizeStatus(currentComplaint?.status);
+      const rowEl = buttonEl.closest("tr");
       if (nextStatus === currentStatus) {
+        setRowActionMessage(rowEl, "No status change selected.", "error");
         return;
       }
 
-      saveStatusUpdate({ complaintId, nextStatus, selectEl, buttonEl });
+      saveStatusUpdate({ complaintId, nextStatus, rowEl });
     });
   });
 }
