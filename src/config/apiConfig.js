@@ -81,17 +81,34 @@ export function getHomePath() {
 
 function getAppBasePath() {
   const { hostname, pathname } = window.location;
+  const path = pathname || "/";
 
-  // Local development
-  if (hostname === "localhost" || hostname === "127.0.0.1") {
-    return "";
+  // Known app roots for both local and deployed routes.
+  const rootMarkers = ["/pages/", "/assets/", "/src/", "/index.html", "/register.html"];
+  for (const marker of rootMarkers) {
+    const markerIndex = path.indexOf(marker);
+    if (markerIndex > 0) {
+      return path.slice(0, markerIndex);
+    }
   }
 
-  // GitHub Pages: first path segment is repo name
-  const segments = pathname.split("/").filter(Boolean);
+  // If current path already ends with a folder (e.g. /repo-name/), use it.
+  if (path.endsWith("/") && path !== "/") {
+    return path.slice(0, -1);
+  }
 
-  if (segments.length > 0) {
+  const segments = path.split("/").filter(Boolean);
+
+  // GitHub Pages repo host fallback: /<repo-name>
+  if (hostname.endsWith(".github.io") && segments.length > 0) {
     return `/${segments[0]}`;
+  }
+
+  // Local nested host fallback (e.g. /frontend without trailing slash)
+  if ((hostname === "localhost" || hostname === "127.0.0.1") && segments.length === 1) {
+    if (!segments[0].includes(".")) {
+      return `/${segments[0]}`;
+    }
   }
 
   return "";
