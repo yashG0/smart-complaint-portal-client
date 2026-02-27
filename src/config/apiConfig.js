@@ -80,11 +80,21 @@ export function getHomePath() {
 }
 
 function getAppBasePath() {
-  const pathname = window.location.pathname ?? "";
-  // Works for both:
-  // - http://127.0.0.1:5500/... (frontend as web root)
-  // - http://127.0.0.1:5500/frontend/... (project root as web root)
-  return pathname.startsWith("/frontend/") ? "/frontend" : "";
+  const { hostname, pathname } = window.location;
+
+  // Local development
+  if (hostname === "localhost" || hostname === "127.0.0.1") {
+    return "";
+  }
+
+  // GitHub Pages: first path segment is repo name
+  const segments = pathname.split("/").filter(Boolean);
+
+  if (segments.length > 0) {
+    return `/${segments[0]}`;
+  }
+
+  return "";
 }
 
 function withAppBasePath(path) {
