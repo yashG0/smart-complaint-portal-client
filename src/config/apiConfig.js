@@ -1,7 +1,16 @@
+const LOCAL_API = "http://127.0.0.1:8000/api";
+const PROD_API = "https://smart-complaint-portal-server-1.onrender.com/api";
+
 export const API_CONFIG = {
-  baseURL: "http://127.0.0.1:8000/api",
+  baseURL:
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1"
+      ? LOCAL_API
+      : PROD_API,
+
   timeoutMs: 10000,
   enableOfflineAuthFallback: false,
+
   endpoints: {
     loginByRole: {
       student: ["/auth/student/login", "/auth/user/login", "/auth/login"],
