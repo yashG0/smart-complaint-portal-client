@@ -1,12 +1,34 @@
 const LOCAL_API = "http://127.0.0.1:8000/api";
 const PROD_API = "https://smart-complaint-portal-server-1.onrender.com/api";
+const API_BASE_OVERRIDE_KEY = "scp_api_base_url";
 
-export const API_CONFIG = {
-  baseURL:
-    window.location.hostname === "localhost" ||
+function resolveApiBaseUrl() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const apiParam = params.get("api");
+    if (apiParam === "local") {
+      return LOCAL_API;
+    }
+    if (apiParam === "prod") {
+      return PROD_API;
+    }
+  } catch (_) {
+    // ignore URL parsing issues and continue with fallback
+  }
+
+  const override = localStorage.getItem(API_BASE_OVERRIDE_KEY)?.trim();
+  if (override) {
+    return override;
+  }
+
+  return window.location.hostname === "localhost" ||
     window.location.hostname === "127.0.0.1"
       ? LOCAL_API
-      : PROD_API,
+      : PROD_API;
+}
+
+export const API_CONFIG = {
+  baseURL: resolveApiBaseUrl(),
 
   timeoutMs: 10000,
   enableOfflineAuthFallback: false,
@@ -21,6 +43,16 @@ export const API_CONFIG = {
       student: ["/auth/student/register", "/auth/user/register", "/auth/register"],
       department: ["/auth/department/register", "/auth/register"],
       admin: ["/auth/admin/register"]
+    },
+    forgotPasswordByRole: {
+      student: ["/auth/student/forgot-password", "/auth/user/forgot-password"],
+      department: ["/auth/department/forgot-password"],
+      admin: ["/auth/admin/forgot-password"]
+    },
+    resetPasswordByRole: {
+      student: ["/auth/student/reset-password", "/auth/user/reset-password"],
+      department: ["/auth/department/reset-password"],
+      admin: ["/auth/admin/reset-password"]
     }
   }
 };
@@ -63,6 +95,16 @@ export function getLoginEndpoints(role) {
 export function getRegisterEndpoints(role) {
   const normalizedRole = normalizeRole(role) ?? "student";
   return API_CONFIG.endpoints.registerByRole[normalizedRole] ?? ["/auth/register"];
+}
+
+export function getForgotPasswordEndpoints(role) {
+  const normalizedRole = normalizeRole(role) ?? "student";
+  return API_CONFIG.endpoints.forgotPasswordByRole[normalizedRole] ?? [];
+}
+
+export function getResetPasswordEndpoints(role) {
+  const normalizedRole = normalizeRole(role) ?? "student";
+  return API_CONFIG.endpoints.resetPasswordByRole[normalizedRole] ?? [];
 }
 
 export function getDashboardPath(role) {

@@ -1,4 +1,6 @@
-import { login } from "../../services/authService.js";
+import {
+  login
+} from "../../services/authService.js";
 import { getDashboardPath } from "../../config/apiConfig.js";
 import { redirectLoggedInUserToDashboard } from "../../utils/authGuard.js";
 

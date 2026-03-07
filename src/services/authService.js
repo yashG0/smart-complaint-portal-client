@@ -1,6 +1,8 @@
 import apiClient, { extractErrorMessage } from "./api.js";
 import {
+  getForgotPasswordEndpoints,
   getLoginEndpoints,
+  getResetPasswordEndpoints,
   getRegisterEndpoints,
   normalizeRole
 } from "../config/apiConfig.js";
@@ -118,6 +120,32 @@ export async function register({
     } catch {
       return await login({ email, password, role: normalizedRole });
     }
+  } catch (error) {
+    throw new Error(extractErrorMessage(error));
+  }
+}
+
+export async function requestPasswordResetCode({ email, role }) {
+  try {
+    const normalizedRole = normalizeRole(role);
+    const endpoints = getForgotPasswordEndpoints(normalizedRole);
+    const response = await postToFirstAvailableEndpoint(endpoints, { email });
+    return response.data?.data ?? response.data ?? {};
+  } catch (error) {
+    throw new Error(extractErrorMessage(error));
+  }
+}
+
+export async function resetPasswordWithCode({ email, code, newPassword, role }) {
+  try {
+    const normalizedRole = normalizeRole(role);
+    const endpoints = getResetPasswordEndpoints(normalizedRole);
+    const response = await postToFirstAvailableEndpoint(endpoints, {
+      email,
+      code,
+      new_password: newPassword
+    });
+    return response.data?.data ?? response.data ?? {};
   } catch (error) {
     throw new Error(extractErrorMessage(error));
   }

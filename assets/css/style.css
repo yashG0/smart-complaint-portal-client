@@ -155,6 +155,32 @@ a{
   background: #1e293b;
 }
 
+.auth-secondary-btn {
+  margin-top: 6px;
+  margin-bottom: 10px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid #334155;
+  color: #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.auth-secondary-btn:hover {
+  transform: translateY(-1px);
+  background: rgba(30, 41, 59, 0.95);
+  border-color: #475569;
+}
+
+.auth-secondary-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+  transform: none;
+}
+
 /* SECTIONS */
 .section {
   position: relative;
@@ -360,6 +386,35 @@ footer {
   text-align: center;
 }
 
+.status-text {
+  min-height: 42px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.35;
+}
+
+.status-info {
+  color: #bae6fd;
+  background: rgba(12, 74, 110, 0.35);
+  border-color: rgba(56, 189, 248, 0.45);
+}
+
+.status-success {
+  color: #dcfce7;
+  background: rgba(20, 83, 45, 0.38);
+  border-color: rgba(34, 197, 94, 0.5);
+}
+
+.status-error {
+  color: #fee2e2;
+  background: rgba(127, 29, 29, 0.4);
+  border-color: rgba(248, 113, 113, 0.55);
+}
+
 /* FOOTER */
 
 .auth-footer {
@@ -407,6 +462,16 @@ footer {
   color: #5eead4;
 }
 
+.auth-body[data-role="department"] .auth-secondary-btn {
+  border-color: rgba(20, 184, 166, 0.55);
+  color: #ccfbf1;
+}
+
+.auth-body[data-role="department"] .auth-secondary-btn:hover {
+  background: rgba(13, 148, 136, 0.2);
+  border-color: rgba(20, 184, 166, 0.9);
+}
+
 
 
 /* ADMIN LOGIN PAGE STYLE */
@@ -440,6 +505,63 @@ footer {
 
 .auth-body[data-role="admin"] .auth-footer a {
   color: #fca5a5;
+}
+
+.auth-body[data-role="admin"] .auth-secondary-btn {
+  border-color: rgba(239, 68, 68, 0.55);
+  color: #fee2e2;
+}
+
+.auth-body[data-role="admin"] .auth-secondary-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.9);
+}
+
+.toast-stack {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(360px, calc(100vw - 28px));
+}
+
+.toast {
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.35;
+  color: #f8fafc;
+  border: 1px solid transparent;
+  background: rgba(15, 23, 42, 0.96);
+  box-shadow: 0 18px 45px rgba(2, 6, 23, 0.55);
+  opacity: 0;
+  transform: translateY(-6px);
+  animation: toastIn 0.2s ease forwards;
+}
+
+.toast--success {
+  border-color: rgba(34, 197, 94, 0.7);
+  background: rgba(20, 83, 45, 0.94);
+}
+
+.toast--error {
+  border-color: rgba(248, 113, 113, 0.75);
+  background: rgba(127, 29, 29, 0.95);
+}
+
+.toast--info {
+  border-color: rgba(56, 189, 248, 0.75);
+  background: rgba(12, 74, 110, 0.95);
+}
+
+@keyframes toastIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 
