@@ -1,69 +1,71 @@
 # Smart Complaint Portal (Frontend)
 
-Role-based complaint management system for college/institute workflows.
+Role-based complaint management UI for students, departments, and admin.
 
-## Current Scope
-- Student: register/login, create complaint, list complaints, profile, complaint history timeline.
-- Department: login/register, assigned/in-progress/resolved pages, status updates, complaint history timeline.
-- Admin: login/register, all complaints, assignment queue, status control, escalations/departments views, complaint history timeline.
+## Features
+- Student:
+  - register/login
+  - forgot password (OTP via email)
+  - dashboard
+  - create complaint (with optional department)
+  - my complaints + history
+  - profile page
+- Department:
+  - register/login
+  - forgot password (OTP)
+  - complaint workflow pages (assigned / in progress / resolved)
+  - status updates
+- Admin:
+  - login
+  - dashboard + recent complaints
+  - all complaints (status update, assignment, history)
+  - assignment queue
+  - escalations page
+  - departments directory
+  - pagination for large tables
+- UX:
+  - role-based guards
+  - mobile-friendly layouts
+  - floating toast notifications for interaction feedback
+  - button loading states with spinner
 
-## Stack
-- Frontend: HTML, CSS, Vanilla JS (ES modules)
-- Backend: FastAPI + SQLModel + JWT
-- Database: SQLite (`backend/complaints.db`)
+## Tech Stack
+- HTML + CSS + Vanilla JS (ES modules)
+- Backend integration: FastAPI REST API
 
-## Project Layout
-This repository is `frontend/`. Backend exists in sibling folder `../backend`.
-
-Important frontend paths:
+## Project Structure
 - `index.html`
 - `pages/user/*`
 - `pages/department/*`
 - `pages/admin/*`
 - `src/modules/*`
 - `src/services/*`
+- `src/config/apiConfig.js`
 - `assets/css/style.css`
 
-## Quick Start (Full App)
+Backend is in sibling folder: `../backend`.
+
+## Local Run
 1. Start backend:
 ```bash
 cd ../backend
 uv run uvicorn main:app --reload --host 127.0.0.1 --port 8000
 ```
-
-2. Start frontend static server (choose one):
-- VS Code Live Server on `frontend/index.html`
-- or:
+2. Start frontend static server:
 ```bash
 cd frontend
 python3 -m http.server 5500
 ```
-
 3. Open:
 - `http://127.0.0.1:5500/index.html`
-- If served from project root path, use `http://127.0.0.1:5500/frontend/index.html`
 
-## Demo Helper Script
-Use:
-```bash
-bash scripts/demo.sh
-```
+## Demo Flow
+1. Student registers/logs in and creates complaint.
+2. Admin assigns complaint to a department.
+3. Department updates complaint status.
+4. Student sees updates + complaint history.
 
-It checks backend health and prints demo URLs + role flow checklist.
-
-## Suggested Demo Accounts
-Use your seeded accounts, or register fresh from UI:
-- Student: `/pages/user/register.html`
-- Department: `/pages/department/register.html`
-- Admin: `/pages/admin/register.html`
-
-## Demo Flow (Viva)
-1. Student login -> create complaint -> open My Complaints -> view history.
-2. Admin login -> Assignment Queue -> assign complaint to department.
-3. Department login -> Assigned/In Progress -> update status -> verify history updates.
-4. Admin All Complaints -> update status + view timeline.
-
-## Notes
-- Frontend auth guards are for UX navigation; backend enforces real access control.
-- API base config is in `src/config/apiConfig.js`.
-- Offline auth fallback is disabled.
+## Important Notes
+- Admin self-registration is disabled in backend.
+- Frontend guards are UX-only; backend enforces real authorization.
+- Update API base settings in `src/config/apiConfig.js` for deployed backend.
