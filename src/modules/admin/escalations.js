@@ -1,10 +1,14 @@
 import { getAuthUser } from "../../services/authService.js";
 import { getAllComplaints } from "../../services/adminService.js";
 import { requireAuth, logoutAndRedirect } from "../../utils/authGuard.js";
+import { getPageSlice, renderPagination, runWithButtonLoading } from "./ui.js";
+import { showToast } from "../../utils/toast.js";
 
 const isAllowed = requireAuth({ allowedRoles: ["admin"] });
 
 let allComplaints = [];
+let currentPage = 1;
+const PAGE_SIZE = 12;
 
 function formatDate(dateString) {
   const date = new Date(dateString);
@@ -22,13 +26,17 @@ function formatDate(dateString) {
 function setError(message) {
   const errorEl = document.getElementById("errorMessage");
   if (errorEl) {
-    errorEl.textContent = message;
+    errorEl.textContent = "";
+  }
+  if (message) {
+    showToast(message, "error");
   }
 }
 
 function renderEscalations() {
   const tableBody = document.getElementById("escalationsTableBody");
   const countEl = document.getElementById("escalationCount");
+  const paginationEl = document.getElementById("escalationsPagination");
 
   if (!tableBody) {
     return;
@@ -43,12 +51,17 @@ function renderEscalations() {
       </tr>
     `;
     if (countEl) countEl.textContent = "0 Critical";
+    if (paginationEl) {
+      paginationEl.innerHTML = "";
+    }
     return;
   }
 
   if (countEl) countEl.textContent = `${escalated.length} Critical`;
+  const pageSlice = getPageSlice(escalated, currentPage, PAGE_SIZE);
+  currentPage = pageSlice.currentPage;
 
-  const rows = escalated
+  const rows = pageSlice.pageItems
     .map((complaint) => {
       const departmentText = complaint.department_name || "Unassigned";
       const userEmail = complaint.user_id ? complaint.user_id.slice(0, 12) : "Unknown";
@@ -67,13 +80,27 @@ function renderEscalations() {
     .join("");
 
   tableBody.innerHTML = rows;
+  renderPagination({
+    container: paginationEl,
+    totalItems: pageSlice.totalItems,
+    totalPages: pageSlice.totalPages,
+    currentPage: pageSlice.currentPage,
+    label: "escalations",
+    onPageChange: (nextPage) => {
+      currentPage = nextPage;
+      renderEscalations();
+    },
+  });
 }
 
-async function loadEscalations() {
+async function loadEscalations(showSuccessToast = false) {
   setError("");
   try {
     allComplaints = await getAllComplaints();
     renderEscalations();
+    if (showSuccessToast) {
+      showToast("Escalations refreshed.", "success", 2200);
+    }
   } catch (error) {
     setError(error.message);
   }
@@ -122,7 +149,12 @@ if (isAllowed) {
   });
 
   refreshBtn?.addEventListener("click", () => {
-    loadEscalations();
+    runWithButtonLoading({
+      buttonEl: refreshBtn,
+      loadingLabel: "Refreshing...",
+      minDurationMs: 500,
+      task: () => loadEscalations(true),
+    });
   });
 
   loadEscalations();

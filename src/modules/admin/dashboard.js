@@ -1,6 +1,8 @@
 import { getAuthUser } from "../../services/authService.js";
 import { getAllComplaints, getDepartments, getComplaintStats } from "../../services/adminService.js";
 import { requireAuth, logoutAndRedirect } from "../../utils/authGuard.js";
+import { runWithButtonLoading } from "./ui.js";
+import { showToast } from "../../utils/toast.js";
 
 const isAllowed = requireAuth({ allowedRoles: ["admin"] });
 
@@ -31,7 +33,10 @@ function getStatusClass(status) {
 function setError(message) {
   const errorEl = document.getElementById("dashboardErrorMessage");
   if (errorEl) {
-    errorEl.textContent = message;
+    errorEl.textContent = "";
+  }
+  if (message) {
+    showToast(message, "error");
   }
 }
 
@@ -92,13 +97,16 @@ function renderRecentComplaints(complaints) {
   tableBody.innerHTML = rows;
 }
 
-async function loadDashboardData() {
+async function loadDashboardData(showSuccessToast = false) {
   setError("");
   try {
     const complaints = await getAllComplaints();
     const stats = await getComplaintStats(complaints);
     setStats(stats);
     renderRecentComplaints(complaints);
+    if (showSuccessToast) {
+      showToast("Dashboard refreshed.", "success", 2200);
+    }
   } catch (error) {
     setError(error.message);
   }
@@ -153,7 +161,12 @@ if (isAllowed) {
   });
 
   refreshBtn?.addEventListener("click", () => {
-    loadDashboardData();
+    runWithButtonLoading({
+      buttonEl: refreshBtn,
+      loadingLabel: "Refreshing...",
+      minDurationMs: 500,
+      task: () => loadDashboardData(true),
+    });
   });
 
   loadDashboardData();

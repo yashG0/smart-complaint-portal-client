@@ -4,6 +4,7 @@ import {
 } from "../../services/authService.js";
 import { getLoginPath } from "../../config/apiConfig.js";
 import { redirectLoggedInUserToDashboard } from "../../utils/authGuard.js";
+import { showToast } from "../../utils/toast.js";
 
 const form = document.getElementById("forgotPasswordForm");
 const emailInput = document.getElementById("email");
@@ -12,69 +13,63 @@ const newPasswordInput = document.getElementById("newPassword");
 const confirmPasswordInput = document.getElementById("confirmPassword");
 const sendCodeBtn = document.getElementById("sendCodeBtn");
 const resetBtn = document.getElementById("resetBtn");
-const errorMessageEl = document.getElementById("errorMessage");
 const role = document.body.dataset.role ?? "student";
-const DEFAULT_TOAST_DURATION_MS = 15000;
 const SUCCESS_REDIRECT_DELAY_MS = 5000;
 
-function showToast(message, variant = "info", durationMs = DEFAULT_TOAST_DURATION_MS) {
-  const stack = document.getElementById("toastStack") ?? createToastStack();
-  const toast = document.createElement("div");
-  toast.className = `toast toast--${variant}`;
-  toast.textContent = message;
-  stack.append(toast);
-
-  window.setTimeout(() => {
-    toast.remove();
-    if (!stack.children.length) {
-      stack.remove();
-    }
-  }, durationMs);
-}
-
-function createToastStack() {
-  const stack = document.createElement("div");
-  stack.id = "toastStack";
-  stack.className = "toast-stack";
-  document.body.append(stack);
-  return stack;
-}
-
-function clearToasts() {
-  const stack = document.getElementById("toastStack");
-  if (!stack) {
+function setButtonLoading(buttonEl, isLoading, loadingLabel = "Loading...") {
+  if (!buttonEl) {
     return;
   }
-  stack.remove();
+
+  if (isLoading) {
+    if (!buttonEl.dataset.defaultLabel) {
+      buttonEl.dataset.defaultLabel = buttonEl.textContent ?? "";
+    }
+    if (!buttonEl.dataset.defaultMinWidth) {
+      buttonEl.dataset.defaultMinWidth = buttonEl.style.minWidth || "";
+    }
+    buttonEl.style.minWidth = `${Math.ceil(buttonEl.getBoundingClientRect().width)}px`;
+    buttonEl.textContent = loadingLabel;
+    buttonEl.disabled = true;
+    buttonEl.setAttribute("aria-busy", "true");
+    buttonEl.classList.add("is-loading");
+    return;
+  }
+
+  buttonEl.textContent = buttonEl.dataset.defaultLabel || buttonEl.textContent;
+  buttonEl.disabled = false;
+  buttonEl.setAttribute("aria-busy", "false");
+  buttonEl.style.minWidth = buttonEl.dataset.defaultMinWidth || "";
+  buttonEl.classList.remove("is-loading");
 }
 
 function setError(message) {
-  if (errorMessageEl) {
-    errorMessageEl.textContent = message;
-    errorMessageEl.className = "error-text status-text status-error";
-  }
   if (message) {
-    clearToasts();
     showToast(message, "error");
   }
 }
 
 function setSuccess(message) {
-  if (errorMessageEl) {
-    errorMessageEl.textContent = message;
-    errorMessageEl.className = "error-text status-text status-success";
-  }
   if (message) {
-    clearToasts();
     showToast(message, "success");
   }
 }
 
 function setInfo(message) {
-  if (errorMessageEl) {
-    errorMessageEl.textContent = message;
-    errorMessageEl.className = "error-text status-text status-info";
-  }
+  showToast(message, "info");
+}
+
+function createDelayedInfoToast(message, delayMs = 350) {
+  let shown = false;
+  const timerId = window.setTimeout(() => {
+    shown = true;
+    setInfo(message);
+  }, delayMs);
+
+  return () => {
+    window.clearTimeout(timerId);
+    return shown;
+  };
 }
 
 redirectLoggedInUserToDashboard({
@@ -83,37 +78,29 @@ redirectLoggedInUserToDashboard({
 });
 
 sendCodeBtn?.addEventListener("click", async () => {
-  if (errorMessageEl) {
-    errorMessageEl.textContent = "";
-    errorMessageEl.className = "error-text status-text";
-  }
   const email = emailInput?.value.trim() ?? "";
   if (!email) {
     setError("Enter your registered email first.");
     return;
   }
 
-  sendCodeBtn.disabled = true;
-  sendCodeBtn.textContent = "Sending OTP...";
-  setInfo("Sending OTP to your registered email...");
+  setButtonLoading(sendCodeBtn, true, "Sending OTP...");
+  const clearPendingInfo = createDelayedInfoToast("Sending OTP to your registered email...");
 
   try {
     await requestPasswordResetCode({ email, role });
+    clearPendingInfo();
     setSuccess("If the account exists, OTP has been sent to the registered email.");
   } catch (error) {
+    clearPendingInfo();
     setError(error.message);
   } finally {
-    sendCodeBtn.disabled = false;
-    sendCodeBtn.textContent = "Send OTP Code";
+    setButtonLoading(sendCodeBtn, false);
   }
 });
 
 form?.addEventListener("submit", async (event) => {
   event.preventDefault();
-  if (errorMessageEl) {
-    errorMessageEl.textContent = "";
-    errorMessageEl.className = "error-text status-text";
-  }
 
   const email = emailInput?.value.trim() ?? "";
   const code = codeInput?.value.trim() ?? "";
@@ -135,20 +122,20 @@ form?.addEventListener("submit", async (event) => {
     return;
   }
 
-  resetBtn.disabled = true;
-  resetBtn.textContent = "Resetting...";
-  setInfo("Updating your password...");
+  setButtonLoading(resetBtn, true, "Resetting...");
+  const clearPendingInfo = createDelayedInfoToast("Updating your password...");
 
   try {
     await resetPasswordWithCode({ email, code, newPassword, role });
+    clearPendingInfo();
     setSuccess("Password reset successful. Redirecting to login...");
     setTimeout(() => {
       window.location.replace(getLoginPath(role));
     }, SUCCESS_REDIRECT_DELAY_MS);
   } catch (error) {
+    clearPendingInfo();
     setError(error.message);
   } finally {
-    resetBtn.disabled = false;
-    resetBtn.textContent = "Reset Password";
+    setButtonLoading(resetBtn, false);
   }
 });

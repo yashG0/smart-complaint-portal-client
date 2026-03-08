@@ -1,10 +1,14 @@
 import { getAuthUser } from "../../services/authService.js";
 import { getDepartments } from "../../services/adminService.js";
 import { requireAuth, logoutAndRedirect } from "../../utils/authGuard.js";
+import { getPageSlice, renderPagination, runWithButtonLoading } from "./ui.js";
+import { showToast } from "../../utils/toast.js";
 
 const isAllowed = requireAuth({ allowedRoles: ["admin"] });
 
 let allDepartments = [];
+let currentPage = 1;
+const PAGE_SIZE = 12;
 
 function formatDate(dateString) {
   const date = new Date(dateString);
@@ -22,13 +26,17 @@ function formatDate(dateString) {
 function setError(message) {
   const errorEl = document.getElementById("errorMessage");
   if (errorEl) {
-    errorEl.textContent = message;
+    errorEl.textContent = "";
+  }
+  if (message) {
+    showToast(message, "error");
   }
 }
 
 function renderDepartments() {
   const tableBody = document.getElementById("departmentsTableBody");
   const countEl = document.getElementById("deptCount");
+  const paginationEl = document.getElementById("departmentsPagination");
 
   if (!tableBody) {
     return;
@@ -41,12 +49,17 @@ function renderDepartments() {
       </tr>
     `;
     if (countEl) countEl.textContent = "0";
+    if (paginationEl) {
+      paginationEl.innerHTML = "";
+    }
     return;
   }
 
   if (countEl) countEl.textContent = String(allDepartments.length);
+  const pageSlice = getPageSlice(allDepartments, currentPage, PAGE_SIZE);
+  currentPage = pageSlice.currentPage;
 
-  const rows = allDepartments
+  const rows = pageSlice.pageItems
     .map((dept) => {
       return `
         <tr>
@@ -62,13 +75,27 @@ function renderDepartments() {
     .join("");
 
   tableBody.innerHTML = rows;
+  renderPagination({
+    container: paginationEl,
+    totalItems: pageSlice.totalItems,
+    totalPages: pageSlice.totalPages,
+    currentPage: pageSlice.currentPage,
+    label: "departments",
+    onPageChange: (nextPage) => {
+      currentPage = nextPage;
+      renderDepartments();
+    },
+  });
 }
 
-async function loadDepartments() {
+async function loadDepartments(showSuccessToast = false) {
   setError("");
   try {
     allDepartments = await getDepartments();
     renderDepartments();
+    if (showSuccessToast) {
+      showToast("Departments refreshed.", "success", 2200);
+    }
   } catch (error) {
     setError(error.message);
   }
@@ -117,7 +144,12 @@ if (isAllowed) {
   });
 
   refreshBtn?.addEventListener("click", () => {
-    loadDepartments();
+    runWithButtonLoading({
+      buttonEl: refreshBtn,
+      loadingLabel: "Refreshing...",
+      minDurationMs: 500,
+      task: () => loadDepartments(true),
+    });
   });
 
   loadDepartments();

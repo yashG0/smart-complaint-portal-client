@@ -1,14 +1,21 @@
 import { getAuthUser } from "../../services/authService.js";
 import {
+  assignComplaintToDepartment,
   getAllComplaints,
+  getDepartments,
   updateComplaintStatusAsAdmin
 } from "../../services/adminService.js";
 import { getComplaintHistory } from "../../services/complaintService.js";
 import { requireAuth, logoutAndRedirect } from "../../utils/authGuard.js";
+import { getPageSlice, renderPagination, runWithButtonLoading } from "./ui.js";
+import { showToast } from "../../utils/toast.js";
 
 const isAllowed = requireAuth({ allowedRoles: ["admin"] });
 
 let allComplaints = [];
+let departments = [];
+let currentPage = 1;
+const PAGE_SIZE = 5;
 const STATUS_LABELS = {
   pending: "Pending",
   assigned: "Assigned",
@@ -53,14 +60,20 @@ function getStatusClass(status) {
 function setError(message) {
   const errorEl = document.getElementById("errorMessage");
   if (errorEl) {
-    errorEl.textContent = message;
+    errorEl.textContent = "";
+  }
+  if (message) {
+    showToast(message, "error");
   }
 }
 
 function setHistoryError(message) {
   const errorEl = document.getElementById("adminHistoryError");
   if (errorEl) {
-    errorEl.textContent = message;
+    errorEl.textContent = "";
+  }
+  if (message) {
+    showToast(message, "error");
   }
 }
 
@@ -99,6 +112,16 @@ function getStatusLabel(status) {
 function getAllowedStatusTargets(currentStatus) {
   const normalized = normalizeStatus(currentStatus);
   return [normalized, ...(ADMIN_TRANSITIONS[normalized] ?? [])];
+}
+
+function canAssignDepartment(complaint) {
+  const status = normalizeStatus(complaint?.status);
+  return !complaint?.department_id && status !== "resolved" && status !== "rejected";
+}
+
+function getDepartmentNameById(departmentId) {
+  const department = departments.find((item) => item.id === departmentId);
+  return department?.name ?? "Selected department";
 }
 
 function setRowActionMessage(rowEl, message, type = "success") {
@@ -228,6 +251,35 @@ async function saveStatusUpdate({ complaintId, nextStatus, rowEl }) {
       `Status updated to ${getStatusLabel(nextStatus)}.`,
       "success"
     );
+    showToast(`Status updated to ${getStatusLabel(nextStatus)}.`, "success");
+  } catch (error) {
+    setError(error.message);
+    setRowActionMessage(rowEl, error.message, "error");
+  } finally {
+    setRowPendingState(rowEl, false);
+  }
+}
+
+async function assignDepartmentFromRow({ complaintId, departmentId, rowEl }) {
+  setError("");
+  setRowPendingState(rowEl, true);
+  setRowActionMessage(rowEl, "Assigning department...");
+
+  try {
+    const updatedComplaint = await assignComplaintToDepartment(complaintId, departmentId);
+    allComplaints = allComplaints.map((complaint) =>
+      complaint.id === complaintId ? { ...complaint, ...updatedComplaint } : complaint
+    );
+    renderComplaints(getFilteredComplaints());
+    const refreshedRow = document.querySelector(
+      `tr[data-complaint-row-id="${complaintId}"]`
+    );
+    setRowActionMessage(
+      refreshedRow,
+      `Assigned to ${getDepartmentNameById(departmentId)}.`,
+      "success"
+    );
+    showToast(`Assigned to ${getDepartmentNameById(departmentId)}.`, "success");
   } catch (error) {
     setError(error.message);
     setRowActionMessage(rowEl, error.message, "error");
@@ -239,6 +291,7 @@ async function saveStatusUpdate({ complaintId, nextStatus, rowEl }) {
 function renderComplaints(complaints) {
   const tableBody = document.getElementById("complaintsTableBody");
   const countEl = document.getElementById("complaintCount");
+  const paginationEl = document.getElementById("complaintsPagination");
 
   if (!tableBody) {
     return;
@@ -251,16 +304,27 @@ function renderComplaints(complaints) {
       </tr>
     `;
     if (countEl) countEl.textContent = "0 Total";
+    if (paginationEl) {
+      paginationEl.innerHTML = "";
+    }
     return;
   }
 
   if (countEl) countEl.textContent = `${complaints.length} Total`;
+  const pageSlice = getPageSlice(complaints, currentPage, PAGE_SIZE);
+  currentPage = pageSlice.currentPage;
 
-  const rows = complaints
+  const rows = pageSlice.pageItems
     .map((complaint) => {
       const statusClass = getStatusClass(complaint.status);
       const departmentText = complaint.department_name || "Unassigned";
       const userEmail = complaint.user_id ? complaint.user_id.slice(0, 10) : "Unknown";
+      const showAssignControls = canAssignDepartment(complaint);
+      const departmentOptions = departments
+        .map(
+          (department) => `<option value="${department.id}">${department.name}</option>`
+        )
+        .join("");
 
       return `
         <tr data-complaint-row-id="${complaint.id}">
@@ -272,6 +336,23 @@ function renderComplaints(complaints) {
           <td>${formatDate(complaint.created_at)}</td>
           <td>
             <div class="admin-action-stack">
+              ${
+                showAssignControls
+                  ? `
+                    <select class="admin-department-select" data-complaint-id="${complaint.id}">
+                      <option value="">Assign to department...</option>
+                      ${departmentOptions}
+                    </select>
+                    <button
+                      type="button"
+                      class="btn-secondary small-btn admin-assign-save"
+                      data-complaint-id="${complaint.id}"
+                    >
+                      Assign
+                    </button>
+                  `
+                  : ""
+              }
               <select class="admin-status-select" data-complaint-id="${complaint.id}">
                 ${getAllowedStatusTargets(complaint.status)
                   .map(
@@ -309,6 +390,18 @@ function renderComplaints(complaints) {
 
   tableBody.innerHTML = rows;
 
+  renderPagination({
+    container: paginationEl,
+    totalItems: pageSlice.totalItems,
+    totalPages: pageSlice.totalPages,
+    currentPage: pageSlice.currentPage,
+    label: "complaints",
+    onPageChange: (nextPage) => {
+      currentPage = nextPage;
+      renderComplaints(getFilteredComplaints());
+    },
+  });
+
   tableBody.querySelectorAll(".complaint-history-btn").forEach((buttonEl) => {
     buttonEl.addEventListener("click", () => {
       const id = buttonEl.dataset.complaintId;
@@ -344,17 +437,56 @@ function renderComplaints(complaints) {
       saveStatusUpdate({ complaintId, nextStatus, rowEl });
     });
   });
+
+  tableBody.querySelectorAll(".admin-assign-save").forEach((buttonEl) => {
+    buttonEl.addEventListener("click", () => {
+      const complaintId = buttonEl.dataset.complaintId;
+      if (!complaintId) {
+        return;
+      }
+
+      const selectEl = tableBody.querySelector(
+        `.admin-department-select[data-complaint-id="${complaintId}"]`
+      );
+      if (!selectEl) {
+        return;
+      }
+
+      const departmentId = selectEl.value;
+      const rowEl = buttonEl.closest("tr");
+
+      if (!departmentId) {
+        setRowActionMessage(rowEl, "Select a department first.", "error");
+        return;
+      }
+
+      const confirmAssign = window.confirm(
+        `Assign complaint #${complaintId.slice(0, 6)} to ${getDepartmentNameById(departmentId)}?`
+      );
+      if (!confirmAssign) {
+        setRowActionMessage(rowEl, "Assignment canceled.", "error");
+        return;
+      }
+
+      assignDepartmentFromRow({ complaintId, departmentId, rowEl });
+    });
+  });
 }
 
 function filterComplaints() {
+  currentPage = 1;
   renderComplaints(getFilteredComplaints());
 }
 
-async function loadComplaints() {
+async function loadComplaints(showSuccessToast = false) {
   setError("");
   try {
+    departments = await getDepartments();
     allComplaints = await getAllComplaints();
     renderComplaints(getFilteredComplaints());
+    if (showSuccessToast) {
+      showToast("Complaints refreshed.", "success", 2200);
+    }
   } catch (error) {
     setError(error.message);
   }
@@ -411,7 +543,12 @@ if (isAllowed) {
   });
 
   refreshBtn?.addEventListener("click", () => {
-    loadComplaints();
+    runWithButtonLoading({
+      buttonEl: refreshBtn,
+      loadingLabel: "Refreshing...",
+      minDurationMs: 500,
+      task: () => loadComplaints(true),
+    });
   });
 
   searchInput?.addEventListener("input", filterComplaints);

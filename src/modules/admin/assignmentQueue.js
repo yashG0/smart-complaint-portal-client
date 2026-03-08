@@ -1,11 +1,15 @@
 import { getAuthUser } from "../../services/authService.js";
 import { getAllComplaints, getDepartments, assignComplaintToDepartment } from "../../services/adminService.js";
 import { requireAuth, logoutAndRedirect } from "../../utils/authGuard.js";
+import { getPageSlice, renderPagination, runWithButtonLoading } from "./ui.js";
+import { showToast } from "../../utils/toast.js";
 
 const isAllowed = requireAuth({ allowedRoles: ["admin"] });
 
 let allComplaints = [];
 let departments = [];
+let currentPage = 1;
+const PAGE_SIZE = 12;
 
 function formatDate(dateString) {
   const date = new Date(dateString);
@@ -23,17 +27,20 @@ function formatDate(dateString) {
 function setError(message) {
   const errorEl = document.getElementById("errorMessage");
   if (errorEl) {
-    errorEl.textContent = message;
+    errorEl.textContent = "";
+  }
+  if (message) {
+    showToast(message, "error");
   }
 }
 
 function setSuccess(message) {
   const successEl = document.getElementById("successMessage");
   if (successEl) {
-    successEl.textContent = message;
-    setTimeout(() => {
-      successEl.textContent = "";
-    }, 4000);
+    successEl.textContent = "";
+  }
+  if (message) {
+    showToast(message, "success", 2200);
   }
 }
 
@@ -68,6 +75,7 @@ function setRowPendingState(rowEl, isPending) {
 function renderQueue() {
   const tableBody = document.getElementById("queueTableBody");
   const countEl = document.getElementById("queueCount");
+  const paginationEl = document.getElementById("queuePagination");
 
   if (!tableBody) {
     return;
@@ -82,12 +90,17 @@ function renderQueue() {
       </tr>
     `;
     if (countEl) countEl.textContent = "0 Pending";
+    if (paginationEl) {
+      paginationEl.innerHTML = "";
+    }
     return;
   }
 
   if (countEl) countEl.textContent = `${unassigned.length} Pending`;
+  const pageSlice = getPageSlice(unassigned, currentPage, PAGE_SIZE);
+  currentPage = pageSlice.currentPage;
 
-  const rows = unassigned
+  const rows = pageSlice.pageItems
     .map((complaint) => {
       const deptOptions = departments
         .map((d) => `<option value="${d.id}">${d.name}</option>`)
@@ -115,6 +128,17 @@ function renderQueue() {
     .join("");
 
   tableBody.innerHTML = rows;
+  renderPagination({
+    container: paginationEl,
+    totalItems: pageSlice.totalItems,
+    totalPages: pageSlice.totalPages,
+    currentPage: pageSlice.currentPage,
+    label: "pending",
+    onPageChange: (nextPage) => {
+      currentPage = nextPage;
+      renderQueue();
+    },
+  });
 
   // Attach assign listeners
   tableBody.querySelectorAll(".assign-select").forEach((select) => {
@@ -166,12 +190,15 @@ function renderQueue() {
   });
 }
 
-async function loadQueue() {
+async function loadQueue(showSuccessToast = false) {
   setError("");
   try {
     allComplaints = await getAllComplaints();
     departments = await getDepartments();
     renderQueue();
+    if (showSuccessToast) {
+      showToast("Assignment queue refreshed.", "success", 2200);
+    }
   } catch (error) {
     setError(error.message);
   }
@@ -220,7 +247,12 @@ if (isAllowed) {
   });
 
   refreshBtn?.addEventListener("click", () => {
-    loadQueue();
+    runWithButtonLoading({
+      buttonEl: refreshBtn,
+      loadingLabel: "Refreshing...",
+      minDurationMs: 500,
+      task: () => loadQueue(true),
+    });
   });
 
   loadQueue();
